@@ -1,0 +1,37 @@
+{
+  "development": {
+    "username": "sa",
+    "password": "duy270304",
+    "database": "organicDatabase",
+    "host": "MSI\\TESTSQLSERVER",
+    "dialect": "mssql",
+    "port": 1433,
+    "logging": true,
+    "dialectOptions": {
+      "options": {
+        "encrypt": true,
+        "trustServerCertificate": true
+      },
+      "pool": {
+        "max": 5,
+        "min": 0,
+        "acquire": 30000,
+        "idle": 10000
+      }
+    }
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql"
+  }
+}
