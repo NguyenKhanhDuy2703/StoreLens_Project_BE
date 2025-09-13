@@ -20,4 +20,5 @@ const personTrackingSchema = {
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now }
 };
-module.exports = { personTrackingSchema}
+const personModel = mongoose.model("PersonTracking", new Schema(personTrackingSchema));
+module.exports =  personTrackingSchema

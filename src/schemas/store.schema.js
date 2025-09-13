@@ -17,4 +17,4 @@ created_at : { type: Date, default: Date.now },
 updated_at : { type: Date, default: Date.now }
 };
 const storeModel = mongoose.model("Store", new Schema(storeSchema));
-module.exports = { storeModel}
+module.exports = storeModel

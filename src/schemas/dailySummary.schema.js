@@ -15,3 +15,5 @@ const dailySummarySchema = {
         }
     ]
 }
+const dailySummaryModel = mongoose.model("DailySummary", new Schema(dailySummarySchema));
+module.exports = dailySummarySchema
