@@ -1,6 +1,5 @@
-const { create } = require("domain");
-const { start } = require("repl");
-
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 const personTrackingSchema = {
     store_id: { type: String, required: true },
     camera_id : { type: String, required: true },
@@ -21,4 +20,4 @@ const personTrackingSchema = {
     updated_at: { type: Date, default: Date.now }
 };
 const personModel = mongoose.model("PersonTracking", new Schema(personTrackingSchema));
-module.exports =  personTrackingSchema
+module.exports =  personModel

@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 const dailySummarySchema = {
     store_id: { type: String, required: true },
     camera_id: { type: String, required: true },
@@ -16,4 +18,4 @@ const dailySummarySchema = {
     ]
 }
 const dailySummaryModel = mongoose.model("DailySummary", new Schema(dailySummarySchema));
-module.exports = dailySummarySchema
+module.exports = dailySummaryModel

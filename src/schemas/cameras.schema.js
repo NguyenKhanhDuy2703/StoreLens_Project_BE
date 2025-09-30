@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
 const camerasSchema = {
     store_id : { type: String, required: true },
     camera_name : { type: String, required: true, unique: true },
