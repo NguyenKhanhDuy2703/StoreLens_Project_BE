@@ -1,3 +1,5 @@
+const mongoose = require("mongoose");
+const { Schema } = mongoose;
 const camerasSchema = {
     store_id : { type: String, required: true },
     camera_name : { type: String, required: true, unique: true },
@@ -24,10 +26,11 @@ const camerasSchema = {
             width: { type: Number, required: true },
             height: { type: Number, required: true }
         },
-      current_resolution :{
+    current_resolution :{
             width: { type: Number, required: true },
             height: { type: Number, required: true }
     },
+},
     camera_state : {
         last_processed_time : { type: Date, default: Date.now },
         last_stop_time : { type: Date, default: Date.now },
@@ -37,7 +40,7 @@ const camerasSchema = {
     installation_date : { type: Date, required: true },
     created_at : { type: Date, default: Date.now },
     updated_at : { type: Date, default: Date.now }
-}
+
 };
 const cameraModel = mongoose.model("Cameras", new Schema(camerasSchema));
 module.exports =  cameraModel
