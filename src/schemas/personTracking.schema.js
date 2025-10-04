@@ -1,6 +1,7 @@
 const { create } = require("domain");
 const { start } = require("repl");
 const mongoose = require("mongoose");
+
 const { Schema } = mongoose;
 const personTrackingSchema = {
   store_id: { type: String, required: true },

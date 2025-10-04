@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
+
 // Connection URL
 const uri = 'mongodb://localhost:27017/?directConnection=true';
-
 
 const connectionMongo = async () => {
   try {
@@ -15,5 +15,6 @@ const connectionMongo = async () => {
     console.error("Could not connect to mongo server", error);
     process.exit(1);
   }
-}
-module.exports = {connectionMongo}
+};
+
+module.exports = { connectionMongo };
