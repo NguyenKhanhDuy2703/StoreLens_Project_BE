@@ -1,3 +1,4 @@
+const { time } = require('console');
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const storeSchema = {
@@ -13,6 +14,15 @@ business_hours : {
     close : { type: String, required: true },
     timezone : { type: String, required: true }
 },
+layout_store : {
+    layout_matrix : []
+} , 
+heatmap : {
+    maxtrix : {
+        rows : { type: Number, required: true },
+        cols : { type: Number, required: true }
+    }
+} , 
 created_at : { type: Date, default: Date.now },
 updated_at : { type: Date, default: Date.now }
 };
