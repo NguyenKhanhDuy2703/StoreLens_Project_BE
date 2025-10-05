@@ -8,7 +8,7 @@ const connectionMongo = async () => {
     await mongoose.connect(uri, { 
       useNewUrlParser: true,
       useUnifiedTopology: true,
-      dbName:'storelens'
+      dbName:'StoreLens'
        });
     console.log("Connected to mongo server");
   } catch (error) {
