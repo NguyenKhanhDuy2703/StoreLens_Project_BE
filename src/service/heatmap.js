@@ -1,107 +1,85 @@
-// Lấy paths 
-const getPaths = async (personModel, store_id, start, end) => {
-    const query = {
-        status: "active",
-        path_data: {
-            $elemMatch: {
-                timestamp: { $gte: start, $lte: end }
-            }
-        }
+
+//Top 5 khu vực đông khách 
+const calculateTopAreas = (heatmaps) => {
+  // Gộp tất cả heatmap_data lại thành một ma trận tổng
+  const combined = [];
+
+  heatmaps.forEach(hm => {
+    hm.heatmap_data.forEach((row, y) => {
+      if (!combined[y]) combined[y] = [];
+      row.forEach((val, x) => {
+        combined[y][x] = (combined[y][x] || 0) + val;
+      });
+    });
+  });
+
+  // Chuyển sang mảng tọa độ + intensity
+  const flat = [];
+  combined.forEach((row, y) => {
+    row.forEach((val, x) => flat.push({ x, y, intensity: val }));
+  });
+
+  // Sắp xếp và lấy top 5
+  const top5 = flat.sort((a, b) => b.intensity - a.intensity).slice(0, 5);
+
+  return top5.map((a, i) => ({
+    rank: i + 1,
+    position: { x: a.x, y: a.y },
+    intensity: a.intensity,
+    label: a.intensity > 500 ? "Rất đông" : a.intensity > 200 ? "Đông" : "Trung bình",
+    colorCode: a.intensity > 500 ? "#ef4444" : a.intensity > 200 ? "#f59e0b" : "#22c55e"
+  }));
+};
+
+// Thống kê “nhiệt độ”
+const calculateTemperatureStats = (heatmaps) => {
+  const values = heatmaps.flatMap(h => h.heatmap_data.flat());
+  const total = values.reduce((a, b) => a + b, 0);
+  const avg = values.length ? total / values.length : 0;
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+
+  return {
+    hottest: max,
+    coldest: min,
+    avgIntensity: Number(avg.toFixed(2)),
+    totalPoints: values.length,
+    highDensityPoints: values.filter(v => v > avg).length
+  };
+};
+
+// Phân tích theo giờ (giả sử mỗi record là một khung giờ)
+const calculateHourlyAnalysis = (heatmaps) => {
+  // Group theo giờ của created_at
+  const hourlyMap = new Map();
+
+  heatmaps.forEach(hm => {
+    const hour = new Date(hm.created_at).getHours();
+    const avgIntensity = hm.heatmap_data.flat().reduce((a, b) => a + b, 0) / hm.heatmap_data.flat().length;
+
+    if (!hourlyMap.has(hour)) hourlyMap.set(hour, []);
+    hourlyMap.get(hour).push(avgIntensity);
+  });
+
+  // Tính trung bình mỗi giờ
+  const result = [...hourlyMap.entries()].map(([hour, vals]) => {
+    const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+    const label = avg > 500 ? "Nóng" : avg > 200 ? "Ấm" : "Mát";
+    const color = avg > 500 ? "bg-red-500" : avg > 200 ? "bg-yellow-400" : "bg-green-400";
+
+    return {
+      time: `${hour}:00 - ${hour + 1}:00`,
+      value: Number(avg.toFixed(1)),
+      label,
+      color
     };
+  });
 
-    if (store_id) {
-        query.store_id = store_id; 
-    }
-
-    return await personModel.find(query);
-};
-
-// Tính heatmapData
-const calculateHeatmapData = (paths, start, end) => {
-    const grid = {};
-    paths.forEach(person => {
-        person.path_data.forEach(p => {
-            if (p.timestamp >= start && p.timestamp <= end) {
-                const key = `${p.position.x}_${p.position.y}`;
-                grid[key] = (grid[key] || 0) + 1;
-            }
-        });
-    });
-    const maxCount = Math.max(...Object.values(grid), 1);
-    return Object.keys(grid).map(key => {
-        const [x, y] = key.split("_").map(Number);
-        return { x, y, intensity: grid[key] / maxCount };
-    });
-};
-
-// Top 5 khu vực đông khách
-const calculateTopCategories = async (cameraModel, store_id, paths) => {
-    const cameraQuery = { "analysis_area.enabled": true };
-    if (store_id) {
-        cameraQuery.store_id = store_id;
-    }
-
-    const cameras = await cameraModel.find(cameraQuery);
-
-    const areaCounts = cameras.map(cam => {
-        let count = 0;
-        paths.forEach(person => {
-            person.path_data.forEach(p => {
-                cam.analysis_area.coordinates.forEach(coord => {
-                    if (Math.abs(p.position.x - coord.x) <= 5 && Math.abs(p.position.y - coord.y) <= 5) {
-                        count++;
-                    }
-                });
-            });
-        });
-        return {
-            name: cam.analysis_area.area_name || cam.camera_name,
-            count,
-            color: count > 80 ? "bg-red-500" : "bg-yellow-500",
-            colorCode: count > 80 ? "#ef4444" : "#f59e0b"
-        };
-    });
-
-    return areaCounts.sort((a, b) => b.count - a.count).slice(0, 5);
-};
-
-// Thống kê nhiệt độ
-const calculateTemperatureStats = (heatmapData) => {
-    const intensities = heatmapData.map(h => h.intensity);
-    const hottest = Math.max(...intensities, 0);
-    const coldest = Math.min(...intensities, 0);
-    const avgIntensity = intensities.length
-        ? (intensities.reduce((a,b) => a+b, 0) / intensities.length)
-        : 0;
-    const totalHotPoints = intensities.reduce((sum, val) => sum + (val > 0.5 ? 1 : 0), 0);
-    return { hottest, coldest, avgIntensity, totalHotPoints };
-};
-
-// Phân tích theo giờ
-const calculateHourlyAnalysis = async (dailySummaryModel, store_id, start, end) => {
-    const dailySummary = await dailySummaryModel.find({
-        store_id,
-        date: { $gte: start, $lte: end }
-    });
-
-    return dailySummary.length
-        ? dailySummary[0].hourly_breakdown.map(h => {
-            const label = h.people_count > 90 ? "Nóng" : "Ấm";
-            const color = h.people_count > 90 ? "bg-red-500" : "bg-yellow-400";
-            return {
-                time: `${h.hour}:00 - ${h.hour + 1}:00`,
-                value: h.people_count,
-                label,
-                color
-            };
-        })
-        : [];
+  return result.sort((a, b) => a.time.localeCompare(b.time));
 };
 
 module.exports = {
-    getPaths,
-    calculateHeatmapData,
-    calculateTopCategories,
-    calculateTemperatureStats,
-    calculateHourlyAnalysis
+  calculateTopAreas,
+  calculateTemperatureStats,
+  calculateHourlyAnalysis
 };
