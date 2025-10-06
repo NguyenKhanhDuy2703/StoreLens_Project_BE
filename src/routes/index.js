@@ -15,14 +15,11 @@ const DwelltimeRouter=require("./dwelltimeRouter");
 
 const Routes = (app) => {
     app.use('/api', TrackingRouter)
-<<<<<<< HEAD
     app.use("/api/v1/traffic", trafficRoute);
     app.use("/api/v1/downtime", DowntimeRoute);
     app.use("/api/v1/dwelltime",DwelltimeRouter);
     app.use('/api/khach', khachRouter) 
-=======
     app.use('/api/khach', khachRouter)
->>>>>>> 6be169314d5eafe438d34332dac6278cac3d5a56
     app.use('/api/visit', visitRouter)
     app.use('/api/trend', trend7Day)
     app.use("/api/v1/dashboard", dashboardRouter)
