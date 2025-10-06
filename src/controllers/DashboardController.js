@@ -1,26 +1,27 @@
 const PersonTracking = require("../schemas/personTracking.schema");
-const {  getDateRangeVN } = require("../service/dashboard");
+const { getDateRangeVN } = require("../service/dashboard");
 
-// Đếm số người vào theo khoảng thời gian và cửa hàng
+// Người vào
 const getEntered = async (req, res) => {
   try {
-    const store_id = req.query.store_id || null; // null = tất cả cửa hàng
-    const range = req.query.range || "today";     // default today
-    const { start, end } =  getDateRangeVN(range);
+    const store_id = req.query.store_id || null;
+    const range = req.query.range || "today";
+    const { start, end } = getDateRangeVN(range);
 
-    const query = {
-      created_at: { $gte: start, $lte: end },
-      status: "active"
-    };
+    const query = { created_at: { $gte: start, $lte: end }, status: "active" };
     if (store_id) query.store_id = store_id;
 
     const enteredCount = await PersonTracking.distinct("person_id", query);
 
     res.status(200).json({
       message: "Get entered count successfully",
-      entered: enteredCount.length,
-      store_id: store_id || "all",
-      range
+      data: [
+        {
+          store_id: store_id || "all",
+          value: enteredCount.length,
+          label: "Người vào"
+        }
+      ]
     });
   } catch (error) {
     res.status(500).json({
@@ -30,26 +31,27 @@ const getEntered = async (req, res) => {
   }
 };
 
-// Đếm số người rời đi theo khoảng thời gian và cửa hàng
+// Người ra
 const getExited = async (req, res) => {
   try {
     const store_id = req.query.store_id || null;
     const range = req.query.range || "today";
     const { start, end } = getDateRangeVN(range);
 
-    const query = {
-      created_at: { $gte: start, $lte: end },
-      status: "inactive"
-    };
+    const query = { created_at: { $gte: start, $lte: end }, status: "inactive" };
     if (store_id) query.store_id = store_id;
 
     const exitedCount = await PersonTracking.distinct("person_id", query);
 
     res.status(200).json({
       message: "Get exited count successfully",
-      exited: exitedCount.length,
-      store_id: store_id || "all",
-      range
+      data: [
+        {
+          store_id: store_id || "all",
+          value: exitedCount.length,
+          label: "Người ra"
+        }
+      ]
     });
   } catch (error) {
     res.status(500).json({
@@ -59,8 +61,8 @@ const getExited = async (req, res) => {
   }
 };
 
-// Số người hiện đang ở bên trong, theo cửa hàng nếu có
-const  getCurrentlyInside = async (req, res) => {
+// Hiện đang ở bên trong
+const getCurrentlyInside = async (req, res) => {
   try {
     const store_id = req.query.store_id || null;
 
@@ -81,8 +83,13 @@ const  getCurrentlyInside = async (req, res) => {
 
     res.status(200).json({
       message: "Get currently inside count successfully",
-      inside: latestStatuses.length,
-      store_id: store_id || "all"
+      data: [
+        {
+          store_id: store_id || "all",
+          value: latestStatuses.length,
+          label: "Hiện bên trong"
+        }
+      ]
     });
   } catch (error) {
     res.status(500).json({
