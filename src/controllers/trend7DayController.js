@@ -4,29 +4,28 @@ const moment = require("moment");
 
 const get7DayTrend = async (req, res) => {
   try {
-    // 🔹 Nhận store_id từ params hoặc query
+    // Nhận store_id từ params hoặc query
     let store_id = req.params.store_id || req.query.store_id;
 
     if (!store_id) {
       return res.status(400).json({ success: false, message: "Thiếu store_id" });
     }
 
-    // 🔹 Làm sạch ID (loại bỏ ký tự thừa)
+    // Làm sạch ID (loại bỏ ký tự thừa)
     store_id = store_id.toString().replace(/['"\s]/g, "");
-    console.log("🟢 store_id (clean):", store_id);
 
-    // 🔹 Kiểm tra ID hợp lệ
+    // Kiểm tra ID hợp lệ
     if (!mongoose.Types.ObjectId.isValid(store_id)) {
       return res
         .status(400)
         .json({ success: false, message: `store_id không hợp lệ: ${store_id}` });
     }
 
-    // 🔹 Xác định khoảng 7 ngày gần nhất
+    // Xác định khoảng 7 ngày gần nhất
     const endDate = moment().endOf("day").toDate();
     const startDate = moment().subtract(6, "days").startOf("day").toDate();
 
-    // 🔹 Truy vấn dữ liệu từ DailySummary
+    // Truy vấn dữ liệu từ DailySummary
     const summaries = await DailySummary.find({
       store_id: new mongoose.Types.ObjectId(store_id),
       date: { $gte: startDate, $lte: endDate },
@@ -69,7 +68,7 @@ const get7DayTrend = async (req, res) => {
       day.total_people > max.total_people ? day : max
     );
 
-    // ✅ Trả kết quả đẹp, chuẩn format
+    // trả kq
     res.status(200).json({
       success: true,
       store_id,
@@ -85,7 +84,7 @@ const get7DayTrend = async (req, res) => {
       trend_data: trendData,
     });
   } catch (error) {
-    console.error("❌ Error get7DayTrend:", error);
+    console.error("Error get7DayTrend:", error);
     res.status(500).json({
       success: false,
       message: "Lỗi lấy xu hướng 7 ngày",
