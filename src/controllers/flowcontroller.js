@@ -1,5 +1,5 @@
-const { getDateRangeVN } = require("../service/dashboard");
-const FlowService = require("../service/flow");
+const { getDateRangeVN } = require("../service/DashboardService");
+const FlowService = require("../service/FlowService");
 const personTrackingModel = require("../schemas/personTracking.schema"); 
 const heatmapModel = require("../schemas/heatmap.schema");
 const cameraModel = require("../schemas/cameras.schema");

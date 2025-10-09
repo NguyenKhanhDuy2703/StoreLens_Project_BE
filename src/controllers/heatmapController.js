@@ -1,6 +1,6 @@
 const heatmapModel = require("../schemas/heatmap.schema");
-const { getDateRangeVN } = require("../service/dashboard");
-const heatmapService = require("../service/heatmap");
+const { getDateRangeVN } = require("../service/DashboardService");
+const heatmapService = require("../service/HeatMapService");
 
 // Lấy dữ liệu heatmap
 const getHeatmapData = async (req, res) => {

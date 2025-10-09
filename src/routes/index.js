@@ -1,40 +1,19 @@
 const TrackingRouter = require("./Tracking")
 
-const dashboardRouter = require("./dashboard")
-const heatmapRouter = require("./heatmap")
-const flowRouter = require("./flow")
-const cesRouter = require("./ces")
-
-const khachRouter = require("./khach.router")
-const visitRouter = require("./visit.router")
-const trend7Day = require("./trend7Day.router")
-<<<<<<< HEAD
-const dashboardTrendRouter = require("./dashboardTrend.router");
-
-=======
-const trafficRoute = require("./traffic");
-const DowntimeRoute = require("./downtime");
-const DwelltimeRouter=require("./dwelltimeRouter");
->>>>>>> 9e0adb6bda6bce5d85f8265c3e04961b6e0f44b6
+const dashboardRouter = require("./DashboardRoutes")
+const heatmapRouter = require("./HeatMapRoutes")
+const flowRouter = require("./FlowRoutes")
+const cesRouter = require("./CESRoutes")
+const downtimeRouter = require("./CESRoutes")
 
 
 const Routes = (app) => {
-    app.use('/api', TrackingRouter)
-    app.use("/api/v1/traffic", trafficRoute);
-    app.use("/api/v1/downtime", DowntimeRoute);
-    app.use("/api/v1/dwelltime",DwelltimeRouter);
-    app.use('/api/khach', khachRouter) 
-    app.use('/api/khach', khachRouter)
-    app.use('/api/visit', visitRouter)
-    app.use('/api/trend', trend7Day)
-<<<<<<< HEAD
-    app.use('/api/dashboardTrend', dashboardTrendRouter);
-=======
+    app.use("/api/v1/downtime", downtimeRouter);
     app.use("/api/v1/dashboard", dashboardRouter)
     app.use("/api/v1/heatmap", heatmapRouter)
     app.use("/api/v1/flow", flowRouter)
     app.use("/api/v1/ces", cesRouter)
 
->>>>>>> 9e0adb6bda6bce5d85f8265c3e04961b6e0f44b6
+
 }
 module.exports = Routes;
