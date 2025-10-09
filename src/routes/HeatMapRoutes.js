@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const heatmapController = require("../controllers/HeatmapController");
+const heatmapController = require("../controllers/HeatMapController");
 
 // Lấy dữ liệu heatmap cho cửa hàng theo store_id và khoảng thời gian (range: today, yesterday, 7days)
 router.get("/data", heatmapController.getHeatmapData);

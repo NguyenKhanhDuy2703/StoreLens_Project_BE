@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const flowController = require("../controllers/flowcontroller");
+const flowController = require("../controllers/FlowController");
 
 // Flow Paths(Dữ liệu luồng di chuyển)
 router.get("/paths", flowController.getFlowPaths);
