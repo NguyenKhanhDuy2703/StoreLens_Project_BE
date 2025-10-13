@@ -4,7 +4,6 @@ const DailySummary = require("../schemas/dailySummary.schema");
 const mongoose = require("mongoose");
 const moment = require("moment");
 const Store = require("../schemas/store.schema");
-
 // Người vào
 const getEntered = async (req, res) => {
   try {
