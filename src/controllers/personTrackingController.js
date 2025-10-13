@@ -1,15 +1,22 @@
 
 const  personTrackingService  = require("../service_AI/personTrackingService");
-const  heatmapService =require("../service_AI/heatmapService")
 const updateTracking = async (req, res) => {
   try {
     const data = await personTrackingService.startTracking(0);
-    await personTrackingService.saveDataTracking(data);
-    await personTrackingService.stopTracking();
-
-    //------------- temporation-------------------
-    heatmapService.saveHeatmap(data.data_heatmap);
-    //------------------------------------------
+    const trackingData = {
+      camera_name: data.camera_name,
+      fps : data.fps,
+      time_stamp: data.time_stamp || 0,
+      data_tracking: data.data_tracking,
+      stop_events: data.stop_events,
+    }
+    const heatmapData = {
+      camera_name: data.camera_name,
+      time_stamp: data.time_stamp || 0,
+      heapmap_data: data.heapmap_data,
+    }
+    await personTrackingService.saveDataTracking(trackingData);
+    await personTrackingService.saveHeatmap(heatmapData);
     return res.status(200).json(data);
   } catch (error) {
     console.error("Error in updateTracking:", error);

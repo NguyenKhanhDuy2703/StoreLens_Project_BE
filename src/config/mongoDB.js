@@ -2,10 +2,11 @@ const mongoose = require('mongoose');
 
 // Connection URL
 const uri = 'mongodb://localhost:27017/?directConnection=true';
+const uriMongoCloud = "mongodb+srv://nguyenkhanhduy:duy270304@cluster0.v5l4v9l.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 
 const connectionMongo = async () => {
   try {
-    await mongoose.connect(uri, { 
+    await mongoose.connect(uriMongoCloud, { 
       useNewUrlParser: true,
       useUnifiedTopology: true,
       dbName:'storelens'
@@ -18,3 +19,5 @@ const connectionMongo = async () => {
 };
 
 module.exports = { connectionMongo };
+
+
