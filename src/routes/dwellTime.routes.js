@@ -6,7 +6,7 @@ const {
   getStopRate,
   getAvgEngagement,
   getConversionRate,
-} = require("../controllers/DowntimeController");
+} = require("../controllers/dwellTimeController");
 
 route.get("/area", getDowntimeByArea);
 route.get("/hour", getDowntimeByHour);

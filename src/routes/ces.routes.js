@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const cesController = require("../controllers/CESController");
+const cesController = require("../controllers/cesController");
 
 // Sản phẩm tương tác nhiều nhất
 router.get("/top-products", cesController.getTopProduct);

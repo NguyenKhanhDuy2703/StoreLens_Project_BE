@@ -7,9 +7,9 @@ const {
   getTrend,
   get7DayTrend,
   getDwelltimeToday,
-   getAVGTime,
-   getHourlyTraffic
-} = require("../controllers/DashboardController");
+  getAVGTime,
+  getHourlyTraffic,
+} = require("../controllers/dashBoardController");
 // Đếm ngườivào
 route.get("/entered", getEntered);
 // Đếm người ra
@@ -19,7 +19,7 @@ route.get("/inside", getCurrentlyInside);
 route.get("/:store_id", getTrend);
 route.get("/today/:store_id", getDwelltimeToday);
 route.get("/hourly", getHourlyTraffic);
-route.get("/get7DayTrend/:store_id",get7DayTrend)
+route.get("/get7DayTrend/:store_id", get7DayTrend);
 route.get("/getAVGTime", getAVGTime);
 route.get("/getAVGTime/:store_id", getAVGTime);
 
