@@ -1,5 +1,5 @@
 const { startOfDay, endOfDay } = require("date-fns");
-const dateFnsTz = require("date-fns-tz"); 
+const dateFnsTz = require("date-fns-tz");
 const { utcToZonedTime, zonedTimeToUtc } = dateFnsTz;
 
 const getDateRangeVN = (range) => {
@@ -43,4 +43,4 @@ const getDateRangeVN = (range) => {
   return { start: startUTC, end: endUTC };
 };
 
-module.exports = {getDateRangeVN};
+module.exports = { getDateRangeVN };
