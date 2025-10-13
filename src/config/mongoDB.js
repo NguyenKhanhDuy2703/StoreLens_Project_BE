@@ -1,11 +1,13 @@
 const mongoose = require('mongoose');
+require('dotenv').config();
 
 // Connection URL
 const uri = 'mongodb://localhost:27017/?directConnection=true';
+const uriMongoCloud = process.env.uriMonogoDB;
 
 const connectionMongo = async () => {
   try {
-    await mongoose.connect(uri, { 
+    await mongoose.connect(uriMongoCloud, { 
       useNewUrlParser: true,
       useUnifiedTopology: true,
       dbName:'StoreLens'
@@ -18,3 +20,5 @@ const connectionMongo = async () => {
 };
 
 module.exports = { connectionMongo };
+
+

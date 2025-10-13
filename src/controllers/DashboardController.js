@@ -1,5 +1,5 @@
 const PersonTracking = require("../schemas/personTracking.schema");
-const { getDateRangeVN,getHourlyTrafficData,getAverageDwelltimeToday } = require("../service/DashboardService");
+const { getDateRangeVN,getHourlyTrafficData,getAverageDwelltimeToday } = require("../service/dashBoardService");
 const DailySummary = require("../schemas/dailySummary.schema");
 const mongoose = require("mongoose");
 const moment = require("moment");

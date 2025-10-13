@@ -7,7 +7,7 @@ const {
   getInteractionTypes,
   getHourlyTrends,
   getAreaPerformances
-} = require("../service/CESService");
+} = require("../service/cesService");
 // Top interacted products 
 const getTopProduct = async (req, res) => {
   try {

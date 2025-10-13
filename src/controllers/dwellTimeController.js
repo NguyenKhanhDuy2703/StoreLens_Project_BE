@@ -1,5 +1,5 @@
 const DailySummary = require("../schemas/dailySummary.schema");
-const { getDateRangeVN } = require("../service/DowntimeService");
+const { getDateRangeVN } = require("../service/dwellTimeSevice");
 
 // ===============================
 // Thời gian dừng tại các khu vực
