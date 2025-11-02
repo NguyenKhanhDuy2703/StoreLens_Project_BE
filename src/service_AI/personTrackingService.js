@@ -1,7 +1,7 @@
 const { getTracking } = require("../api/trackingApi");
-const cameraModel = require("../schemas/cameras.schema");
-const personTrackingModel = require("../schemas/personTracking.schema");
-const heatmapModel = require("../schemas/heatmap.schema");
+const cameraModel = require("../schemas/camera.model");
+const personTrackingModel = require("../schemas/personTracking.model");
+const heatmapModel = require("../schemas/heatmap.model");
 const personTrackingService = {
   async startTracking(timestamp) {
     try {
