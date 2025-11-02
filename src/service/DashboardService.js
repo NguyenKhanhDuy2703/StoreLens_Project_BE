@@ -1,49 +1,67 @@
-const { startOfDay, endOfDay } = require("date-fns");
-const dateFnsTz = require("date-fns-tz"); 
 
-const { utcToZonedTime, zonedTimeToUtc } = dateFnsTz;
-const PersonTracking = require("../schemas/personTracking.schema");
+const PersonTracking = require("../schemas/personTracking.model");
 
-const getDateRangeVN = (range) => {
-  const timeZone = "Asia/Ho_Chi_Minh";
-  const now = new Date();
+const dayjs = require('dayjs');
+const utc = require('dayjs/plugin/utc');
+const timezone = require('dayjs/plugin/timezone');
+const isoWeek = require('dayjs/plugin/isoWeek'); // Giúp xác định tuần chính xác (ISO standard)
 
-  let startVN, endVN;
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(isoWeek);
+const getDateRangeVN = (range = 'today') => {
+  const tz = 'Asia/Ho_Chi_Minh';
+  const now = dayjs().tz(tz);
 
-  if (Array.isArray(range) && range.length === 2) {
-    startVN = utcToZonedTime(new Date(range[0]), timeZone);
-    endVN = utcToZonedTime(new Date(range[1]), timeZone);
-  } else {
-    const todayVN = utcToZonedTime(now, timeZone);
+  let start, end;
 
-    switch (range) {
-      case "today":
-        startVN = startOfDay(todayVN);
-        endVN = endOfDay(todayVN);
-        break;
-      case "yesterday":
-        const yesterday = new Date(todayVN);
-        yesterday.setDate(yesterday.getDate() - 1);
-        startVN = startOfDay(yesterday);
-        endVN = endOfDay(yesterday);
-        break;
-      case "7days":
-        const sevenDaysAgo = new Date(todayVN);
-        sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 6);
-        startVN = startOfDay(sevenDaysAgo);
-        endVN = endOfDay(todayVN);
-        break;
-      default:
-        startVN = startOfDay(todayVN);
-        endVN = endOfDay(todayVN);
-    }
+  switch (range) {
+    case 'today':
+      start = now.startOf('day');
+      end = now.endOf('day');
+      break;
+
+    case 'yesterday':
+      start = now.subtract(1, 'day').startOf('day');
+      end = now.subtract(1, 'day').endOf('day');
+      break;
+
+    case '7days':
+      start = now.subtract(6, 'day').startOf('day'); // tính cả hôm nay
+      end = now.endOf('day');
+      break;
+
+    case 'thisWeek':
+      start = now.startOf('isoWeek');
+      end = now.endOf('isoWeek');
+      break;
+
+    case 'lastWeek':
+      start = now.subtract(1, 'week').startOf('isoWeek');
+      end = now.subtract(1, 'week').endOf('isoWeek');
+      break;
+
+    case 'thisMonth':
+      start = now.startOf('month');
+      end = now.endOf('month');
+      break;
+
+    case 'lastMonth':
+      start = now.subtract(1, 'month').startOf('month');
+      end = now.subtract(1, 'month').endOf('month');
+      break;
+
+    default:
+      start = now.startOf('day');
+      end = now.endOf('day');
   }
-
-  const startUTC = zonedTimeToUtc(startVN, timeZone);
-  const endUTC = zonedTimeToUtc(endVN, timeZone);
-
-  return { start: startUTC, end: endUTC };
+  return {
+    start: start.toDate(), 
+    end: end.toDate(),
+  };
 };
+
+
 const getHourlyTrafficData = async (store_id, range = "today") => {
   const { start, end } = getDateRangeVN(range);
 

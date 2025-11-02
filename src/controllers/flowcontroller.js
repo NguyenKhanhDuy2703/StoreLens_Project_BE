@@ -1,8 +1,8 @@
 const { getDateRangeVN } = require("../service/dashBoardService");
 const FlowService = require("../service/flowService");
-const personTrackingModel = require("../schemas/personTracking.schema"); 
-const heatmapModel = require("../schemas/heatmap.schema");
-const cameraModel = require("../schemas/cameras.schema");
+const personTrackingModel = require("../schemas/personTracking.model"); 
+const heatmapModel = require("../schemas/heatmap.model");
+const cameraModel = require("../schemas/camera.model");
 
 // Flow Paths
 const getFlowPaths = async (req, reply) => {

@@ -1,4 +1,4 @@
-const heatmapModel = require("../schemas/heatmap.schema");
+const heatmapModel = require("../schemas/heatmap.model");
 const { getDateRangeVN } = require("../service/dashBoardService");
 const heatmapService = require("../service/heatmapService");
 
