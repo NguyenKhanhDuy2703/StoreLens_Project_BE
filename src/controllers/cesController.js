@@ -1,5 +1,5 @@
-const personTrackingModel = require("../schemas/personTracking.schema");
-const cameraModel = require("../schemas/cameras.schema");
+const personTrackingModel = require("../schemas/personTracking.model");
+const cameraModel = require("../schemas/camera.model");
 
 const {
   getTopProducts,
@@ -7,7 +7,7 @@ const {
   getInteractionTypes,
   getHourlyTrends,
   getAreaPerformances
-} = require("../service/CESService");
+} = require("../service/cesService");
 // Top interacted products 
 const getTopProduct = async (req, res) => {
   try {
