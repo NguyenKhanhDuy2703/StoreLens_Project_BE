@@ -23,4 +23,12 @@ const updateTracking = async (req, res) => {
     res.status(500).json({ error: error.data || "Internal Server Error" });
   }
 };
-module.exports = { updateTracking };
+const stopStracking = async (req , res ) => {
+  try {
+    personTrackingService.stopTracking();
+    res.status(200).json( { message : "Tracking stopped successfully"});
+  } catch (error) {
+    res.status(500).json({ error: error.data || "Internal Server Error" });
+  }
+}
+module.exports = { updateTracking , stopStracking };

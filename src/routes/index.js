@@ -1,4 +1,4 @@
-    const trackingRouter = require("./tracking.routes");
+const trackingRouter = require("./tracking.routes");
 const dashboardRouter = require("./dashBoard.routes");
 const heatmapRouter = require("./heatMap.routes");
 const flowRouter = require("./flow.routes");

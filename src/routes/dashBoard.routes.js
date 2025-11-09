@@ -7,7 +7,7 @@ const {
   getPerformanceZones
 } = require("../controllers/dashboardController");
 route.get("/statusMetrics", getStatusMetrics);
-route.get("/dataChart", getDataChart);
+route.get("/dataCharts", getDataChart);
 route.get("/topProducts", getTopProducts);
 route.get("/performanceZones", getPerformanceZones);
 

@@ -1,4 +1,4 @@
-const DailySummary = require("../schemas/dailySummary.model");
+
 const { getDateRangeVN } = require("../service/dwellTimeSevice");
 
 // ===============================

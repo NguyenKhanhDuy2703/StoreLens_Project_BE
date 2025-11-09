@@ -5,9 +5,7 @@ const { utcToZonedTime, zonedTimeToUtc } = dateFnsTz;
 const getDateRangeVN = (range) => {
   const timeZone = "Asia/Ho_Chi_Minh";
   const now = new Date();
-
   let startVN, endVN;
-
   if (Array.isArray(range) && range.length === 2) {
     startVN = utcToZonedTime(new Date(range[0]), timeZone);
     endVN = utcToZonedTime(new Date(range[1]), timeZone);
@@ -36,10 +34,8 @@ const getDateRangeVN = (range) => {
         endVN = endOfDay(todayVN);
     }
   }
-
   const startUTC = zonedTimeToUtc(startVN, timeZone);
   const endUTC = zonedTimeToUtc(endVN, timeZone);
-
   return { start: startUTC, end: endUTC };
 };
 
