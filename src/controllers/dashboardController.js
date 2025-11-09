@@ -1,26 +1,25 @@
 const { getDateRangeVN } = require("../service/dashBoardService");
 const storeModel = require("../schemas/store.model");
-const DailySummary = require("../schemas/dailySummary.model");
-const cameraModel = require("../schemas/camera.model");
-const zoneModel = require("../schemas/zone.model");
-const { match } = require("assert");
-const getStatusMetrics = async (req, res) => {
+const storeSummaryModel = require("../schemas/storesSummary.model");
+const ZoneSummary = require("../schemas/zonesSummary.model");
+
+const   getStatusMetrics = async (req, res) => {
   try {
-    const { store_id } = req.query;
-    const range = req.query.range || "today";
+    
+    const { store_id , range  } = req.query;
     const { start, end } = getDateRangeVN(range);
-    const store = await storeModel.find({ store_id: store_id });
+    const store = await storeModel.exists({ store_id: store_id });
     // check if store exists
-    if (!store) {
+    if (!store ) {
       return res.status(404).json({
         message: "Store not found",
         store_id: store_id,
       });
     }
-    const statusMetricData = await DailySummary.find({
+    const statusMetricData = await storeSummaryModel.find({
       store_id: store_id,
-      // date : { $gte: start, $lte: end }
-    }).select("performance");
+      date: { $gte: start, $lte: end },
+    }).select("-_id , kpis , realtime")
     const timeStartEnd = `From ${start.toLocaleString("vi-VN", {
       timeZone: "Asia/Ho_Chi_Minh",
     })} to ${end.toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}`;
@@ -40,22 +39,25 @@ const getStatusMetrics = async (req, res) => {
 };
 const getDataChart = async (req, res) => {
   try {
-    const { store_id, range } = req.query;
+    const { store_id, range  } = req.query;
     const { start, end } = getDateRangeVN(range);
-    const checkStore = await storeModel.findOne({
+    const checkStore = await storeModel.exists({
       store_id: store_id,
     });
-    if (!checkStore) {
+
+    if (!checkStore ) {
       throw new Error("Store not found");
     }
-    const dataChart = await DailySummary.find({
+    const dataChart = await storeSummaryModel.find({
       store_id: store_id,
-
-      // date: { $gte: start, $lte: end }
+      date: { $gte: start, $lte: end }
     }).select("chart_data");
     return res.status(200).json({
       message: "Get data chart successfully",
-      data: dataChart,
+      data: {
+        dataCharts: dataChart,
+        rangeL : `${start.toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })} - ${end.toLocaleDateString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" })}`
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -66,17 +68,18 @@ const getDataChart = async (req, res) => {
 };
 const getTopProducts = async (req, res) => {
   try {
-    const { store_id, range, number = 0 } = req.query;
+    const { store_id, range, number = 0  } = req.query;
     const { start, end } = getDateRangeVN(range);
     const checkStore = await storeModel.findOne({
       store_id: store_id,
     });
-    if (!checkStore) {
+   
+    if (!checkStore ) {
       throw new Error("Store not found");
     }
-    const topProducts = await await DailySummary.find({
+    const topProducts = await await storeSummaryModel.find({
       store_id: store_id,
-      // date: { $gte: start, $lte: end },
+      date: { $gte: start, $lte: end },
     }).select("top_products").limit(Number(number));
     return res.status(200).json({
       message: "Get top products successfully",
@@ -91,39 +94,16 @@ const getTopProducts = async (req, res) => {
 };
 const getPerformanceZones = async (req, res) => {
   try {
-    const { store_id, range , zone_id , camera_code  } = req.query;
+    const { store_id, range   } = req.query;
     const { start, end } = getDateRangeVN(range);
     const checkStore = await storeModel.exists({
       store_id: store_id,
     });
-    const checkCamera = await cameraModel.exists({
-      camera_code: camera_code,
+
+    const performanceZones = await ZoneSummary.find({
       store_id: store_id,
-    });
-    const checkZone = await zoneModel.exists(
-      {
-        zones: {
-          $elemMatch : { zone_id: zone_id } // so sánh cách phần từ ở trong mảng zones
-        },
-        store_id: store_id,
-        camera_code: camera_code
-      }
-    );
-    switch (true){
-      case !checkStore:
-        throw new Error("Store not found");
-      case !checkCamera:
-        throw new Error("Camera not found");
-      case !checkZone:
-        throw new Error("Zone not found");
-    }
-    const performanceZones = await DailySummary.find({
-      store_id: store_id,
-      zone_id: zone_id,
-      camera_code: camera_code,
-      // date: { $gte: start, $lte: end },
-    }).select("performance total_revenue");
-    console.log(performanceZones);
+      date: { $gte: start, $lte: end },
+    }).select("-_id  , performance , category_name , trend")
     return res.status(200).json({
       message: "Get performance zones successfully",
       data: performanceZones,

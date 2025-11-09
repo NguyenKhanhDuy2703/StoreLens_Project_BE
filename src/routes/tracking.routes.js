@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { updateTracking} = require("../controllers/personTrackingController")
+const { updateTracking ,  stopStracking} = require("../controllers/personTrackingController")
 router.get('/updateTracking', updateTracking);
+router.get('/stopTracking' , stopStracking )
 module.exports = router;

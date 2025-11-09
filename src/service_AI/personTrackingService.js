@@ -1,4 +1,4 @@
-const { getTracking } = require("../api/trackingApi");
+const { getTracking , stopTracking } = require("../api/trackingApi");
 const cameraModel = require("../schemas/camera.model");
 const personTrackingModel = require("../schemas/personTracking.model");
 const heatmapModel = require("../schemas/heatmap.model");
@@ -147,7 +147,12 @@ const personTrackingService = {
     }
   },
   stopTracking() {
+    try {
+      stopTracking();
     console.log("Tracking stopped.");
+    } catch (error) {
+      throw error;
+    }
   },
 };
 module.exports = personTrackingService;
