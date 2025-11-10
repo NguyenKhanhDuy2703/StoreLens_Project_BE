@@ -6,6 +6,7 @@ const cesRouter = require("./ces.routes");
 const dwellTimeRouter = require("./dwellTime.routes");
 const cameraZonesRouter = require("./cameraZones.route");
 const dataSynchronizationRouter = require("./dataSynchronization.route");
+const loginRouter = require("./login.routes");
 const Routes = (app) => {
   app.use("/api/v1/tracking",trackingRouter);
   app.use("/api/v1/downtime", dwellTimeRouter);
@@ -15,6 +16,7 @@ const Routes = (app) => {
   app.use("/api/v1/ces", cesRouter);
   app.use("/api/v1/cameraZones", cameraZonesRouter);
   app.use("/api/v1/dataSynchronization" ,dataSynchronizationRouter );
+  app.use("/api/v1/auth", loginRouter);
   app.get("/api", (req, res) => {
     res.send("Welcome to the API");
   });
