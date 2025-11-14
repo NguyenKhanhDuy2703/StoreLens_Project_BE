@@ -4,6 +4,7 @@ const {storeSummaryData ,zoneSummariesData } = require("../dataSample");
 const dataSynchronizationController = async (req, res) => {
     try {
         for (const summary of zoneSummariesData) {
+            console.log(summary)
             let newSummary = new ZoneSummary(summary);
             await newSummary.save();
         }

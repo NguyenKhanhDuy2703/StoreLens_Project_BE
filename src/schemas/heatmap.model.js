@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const heatmapSchema = new Schema({
   store_id: { type: String, required: true },
-  camera_id: { type: String, required: true },
+  camera_code: { type: String, required: true },
   time_stamp: { type: Number },
   width_matrix: { type: Number },
   height_matrix: { type: Number },
