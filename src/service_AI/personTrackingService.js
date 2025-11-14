@@ -1,38 +1,40 @@
-const { getTracking , stopTracking } = require("../api/trackingApi");
+const { getTracking , stopTracking  , getDataFromTracking  } = require("../api/trackingApi");
 const cameraModel = require("../schemas/camera.model");
 const personTrackingModel = require("../schemas/personTracking.model");
 const heatmapModel = require("../schemas/heatmap.model");
 const personTrackingService = {
-  async startTracking(timestamp) {
+  async startTracking(timestamp , cameraCode) {
     try {
       console.log("Tracking started.....");
-      const trackingData = await getTracking(timestamp);
+      const getInforCamera = await cameraModel.findOne({ camera_code : cameraCode  }).select("-_id , rtsp_url").lean();
+      const url_rtsp = getInforCamera.rtsp_url;
+      const trackingData = await getTracking(0  , url_rtsp);
       return trackingData;
     } catch (error) {
       console.error("Error in startTracking:", error);
       throw error;
     }
   },
-  async saveDataTracking(data) {
+  async saveDataTracking(data , camera_code , store_id) {
     try {
-      // save data to mongoDB
-      // 1 . check camera is exist in DB
-      //    1.2 if exist save data to personTracking following camera_id
-      //    1.3  if not exist save information camera to DB , then save data to personTracking following camera_id
-      // 2. camera is not exist in DB , log error and request add camera to DB
       console.log("Save data tracking started.....");
-      const camera_name = data.camera_name;
       const timestamp = data.time_stamp || 0;
-      const person_positions = data.data_tracking;
+      const person_positions = data;
+      const checkCamera = await cameraModel.findOne({ camera_code: camera_code });
+      if (!checkCamera) {
+        throw new Error(`Camera with name ${camera_code} does not exist.`);
+      }
+      const checkStore = await cameraModel.findOne({ store_id: store_id });
+      if (!checkStore) {
+        throw new Error(`Store with id ${store_id} does not exist.`);
+      }
+      
       for (const person in person_positions) {
         const person_id = person;
         const positions = person_positions[person].position;
-        const person_class = person_positions[person].class || "unknown";
-        const confidence = person_positions[person].confidence || 0;
+        const person_class = person_positions[person].class ;
+        const confidence = person_positions[person].conf || 0;
         const stop_events = person_positions[person].stop_events || [];
-        // 1.  check pesion is exist in DB
-        //  1.2 if exist update path_data following person_id
-        // 2. if not exist create new personTracking
         const personExists = await personTrackingModel.findOne({
           person_id: person_id,
         });
@@ -41,9 +43,7 @@ const personTrackingService = {
           await personTrackingModel.updateOne(
             { person_id: person_id },
             {
-              // set updated_at and timestamp
               $set: { updated_at: new Date(), timestamp: timestamp },
-              // each used to push array
               $push: {
                 path_data: {
                   $each: positions.map((pos) => [pos[0], pos[1]]),
@@ -53,7 +53,7 @@ const personTrackingService = {
                     {
                       postion: [e.position[0], e.position[1]],
                       duration_s: e.duration_s,
-                      duration_ms: e.duraition_ms,
+                      duration_ms: e.duration_ms,
                     },
                   ]),
                 },
@@ -61,28 +61,31 @@ const personTrackingService = {
             }
           );
         } else {
-          const newPersonTracking = new personTrackingModel({
-            store_id: 0,
-            camera_id: camera_name,
+          const newPersonTracking =  new personTrackingModel({
+            store_id: store_id,
+            camera_code: camera_code,
             person_id: person_id,
-            session_id: 0,
+            session_id: "0",
             timestamp: timestamp,
             class: person_class,
             confidence: confidence,
             path_data: positions.map((pos) => [pos[0], pos[1]]),
+            status: "active",
             stop_events: stop_events.map((e) => [
               {
                 position: [e.position[0], e.position[1]],
                 duration_s: e.duration_s,
-                duration_ms: e.duraition_ms,
+                duration_ms: e.duration_ms,
               },
             ]),
             status: "active",
             created_at: new Date(),
             updated_at: new Date(),
           });
+        
           // save to DB
-          await newPersonTracking.save();
+         const check =  await newPersonTracking.save();
+         
         }
       }
       console.log("Save data tracking completed.");
@@ -90,35 +93,36 @@ const personTrackingService = {
       throw error;
     }
   },
-  async saveHeatmap(data) {
+  async saveHeatmap(data , camera_code , store_id) {
+
     try {
       console.log("Save heatmap started.....");
-      const camera_name = data.camera_name;
       const timestamp = data.time_stamp || 0;
-      const heatmap_data = data.heapmap_data;
-      const {width , height , grid_size , frame_width , frame_height , heatmap_matrix } = heatmap_data;
+    
+    
+      const {width , height , grid_size , width_frame, height_frame , heatmap_matrix } = data;
       // check camera is exist in DB
-      const cameraExists = await cameraModel.findOne({ camera_name: camera_name });
+      const cameraExists = await cameraModel.findOne({ camera_code: camera_code });
       if (!cameraExists) {
-        throw new Error(`Camera with name ${camera_name} does not exist.`);
+        throw new Error(`Camera with name ${camera_code} does not exist.`);
       }
       // check heatmap of the camera is exist in DB
       const heatmapExists = await heatmapModel.findOne({
-        camera_id: camera_name,
+        camera_code: camera_code,
         // timestamp: timestamp, #  develop later time_stamp > 5 minutes  break new document heatmap
       });
       if (heatmapExists) {
         // update heatmap_data
         await heatmapModel.updateOne(
-          { camera_id: camera_name, timestamp: timestamp },
+          { camere_code: camera_code, timestamp: timestamp },
           {
             $set: {
               updated_at: new Date(),
               width_matrix: width,
               height_matrix: height,
               grid_size: grid_size,
-              frame_width: frame_width,
-              frame_height: frame_height,
+              frame_width: width_frame,
+              frame_height: height_frame,
               heatmap_matrix: [...heatmap_matrix],
             },
           }
@@ -127,14 +131,14 @@ const personTrackingService = {
       else {
         // create new heatmap
         const newHeatmap = new heatmapModel({
-          store_id: 0,
-          camera_id: camera_name,
+          store_id: store_id,
+          camera_code: camera_code,
           timestamp: timestamp,
           width_matrix: width,
           height_matrix: height,
           grid_size: grid_size,
-          frame_width: frame_width,
-          frame_height: frame_height,
+          frame_width: width_frame,
+          frame_height: height_frame,
           heatmap_matrix: [...heatmap_matrix],
           created_at: new Date(),
           updated_at: new Date(),
@@ -146,6 +150,16 @@ const personTrackingService = {
       throw error;
     }
   },
+  async getDataTracking() {
+    try {
+      const data = await getDataFromTracking();
+      return data;
+    } catch (error) {
+      throw error;
+    }
+
+  },  
+
   stopTracking() {
     try {
       stopTracking();

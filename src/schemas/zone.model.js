@@ -1,3 +1,4 @@
+const { ca } = require("date-fns/locale");
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
@@ -13,14 +14,9 @@ const zonesSchema = new Schema({
       zone_name: { type: String, required: true },
       coordinates: [[Number]], // polygon points
       color: String,
-      products: [
-        {
-          product_id: String,
-          priority: Number
-        }
-      ]
+      category_name: String,
     }
   ]
 });
-
-module.exports = mongoose.model("Zones", zonesSchema);
+const ZoneModel = mongoose.model("ZoneModel", zonesSchema , "zones");
+module.exports = ZoneModel

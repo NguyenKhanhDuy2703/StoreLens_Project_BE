@@ -18,14 +18,12 @@ const zoneSummarySchema = new Schema(
       top_product_id: { type: String }, // mã sản phẩm nổi bật CỦA ZONE
       peak_hour: { type: Number, default: 0 }, // giờ cao điểm CỦA ZONE
     },
-    // Xu hướng (up / down / steady) CỦA ZONE NÀY
     trend: { type: String, enum: ["up", "down", "steady"], default: "steady" },
-
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
   },
   {
-    collection: "zonesummaries", // Đổi tên collection
+    collection: "zonesummaries", 
     versionKey: false,
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }

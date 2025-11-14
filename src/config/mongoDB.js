@@ -4,6 +4,7 @@ require('dotenv').config();
 // Connection URL
 const uri = 'mongodb://localhost:27017/?directConnection=true';
 const uriMongoCloud = process.env.uriMonogoDB;
+mongoose.set("debug", true)
 console.log("uriMongoCloud:", uriMongoCloud);
 const connectionMongo = async () => {
   try {
