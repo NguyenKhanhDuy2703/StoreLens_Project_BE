@@ -11,6 +11,7 @@ const Routes = (app) => {
   app.use("/api/v1/cameraZones", cameraZonesRouter);
   app.use("/api/v1/heatmap", heatmapRouter);
   app.use("/api/v1/dataSynchronization" ,dataSynchronizationRouter );
+  app.use("/api/v1/auth", loginRouter);
   app.get("/api", (req, res) => {
     res.send("Welcome to the API");
   });
