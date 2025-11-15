@@ -14,5 +14,5 @@ const heatmapSchema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
-
-module.exports = mongoose.model("Heatmap", heatmapSchema);
+const HeatmapModel = mongoose.model("Heatmap", heatmapSchema);
+module.exports = HeatmapModel
