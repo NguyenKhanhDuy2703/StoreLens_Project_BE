@@ -1,5 +1,5 @@
 const User = require('../schemas/user.model');
-const { renderToken } = require('../service/LoginService');
+const { renderToken } = require('../utils/handleToken');
 
 const loginController = async (req, res) => {
   const { account, password } = req.query;
