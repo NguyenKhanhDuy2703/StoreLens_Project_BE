@@ -1,6 +1,7 @@
 const cameraModel = require("../schemas/camera.model");
 const ZoneModel = require("../schemas/zone.model");
 const { camerasData, ZonesData } = require("../dataSample");
+const storeModel = require("../schemas/store.model");
 const cameraZonesController = async (req, res) => {
   try {
     // const settingZones = req.body;
@@ -68,15 +69,49 @@ const getListCamera = async (req, res) => {
 };
 const saveNewCameras = async (req, res) => {
   try {
-    const cameras = camerasData;
-    // camera_code is exist in DB and store
-    for (const cameraData of cameras) {
-      let newCamera = new cameraModel(cameraData);
-      await newCamera.save();
+    const { cameraCode } = req.params;
+    const {ImageURL , heightFrame ,widthFrame ,zones ,zoneId } = req.body;
+    const existingCamera = await cameraModel.findOne({ camera_code: cameraCode });
+    if (!existingCamera) {
+      return res.status(404).json({
+        message: `Camera with code ${cameraCode} not found`,
+      });
+    }
+    const storeId = existingCamera.store_id;
+    const checkStore = await storeModel.exists({ store_id: storeId });
+    if (!checkStore) {
+      return res.status(404).json({
+        message: `Store with id ${storeId} not found`,
+      });
+    }
+    const checkInfoZone = await ZoneModel.findOne({ camera_code: cameraCode  , store_id : storeId });
+    if (checkInfoZone) {
+      await ZoneModel.updateOne(
+        { camera_code: cameraCode , store_id : storeId },
+        {
+          $set: {
+            background_image: ImageURL,
+            width_frame: widthFrame,
+            height_frame: heightFrame,
+            zones: JSON.parse(zones),
+          },
+        }
+      );
+    }else{
+      const newZone = new ZoneModel({
+      store_id: storeId,
+      camera_code: cameraCode,
+      zone_id : zoneId ,
+      background_image: ImageURL,
+      width_frame: widthFrame,
+      height_frame: heightFrame,
+      zones: JSON.parse(zones),
+    });
+    await newZone.save();
     }
     res.status(200).json({
       message: "New cameras saved successfully",
-      data: cameras,
+
     });
   } catch (error) {
     res.status(500).json({
