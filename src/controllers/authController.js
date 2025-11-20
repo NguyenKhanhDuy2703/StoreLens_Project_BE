@@ -3,7 +3,7 @@ const Store = require('../schemas/store.model');
 const { renderToken } = require('../utils/handleToken');
 const { comparePassword, hashPassword } = require('../utils/hashpassword');
 
-
+// Đăng nhập
 const loginController = async (req, res) => {
   const { account, password } = req.body;
 
@@ -54,7 +54,7 @@ const loginController = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
-
+// Đăng ký
 
 const registerController = async (req, res) => { 
   const { fullname, account, email, password, store_id } = req.body;
@@ -133,13 +133,7 @@ const registerController = async (req, res) => {
   }
 };
 
-
-
-
-
-
-
-
+// Đăng xuất
 
 const logoutController = async (req, res) => {
   if (!req.cookies.sessionToken) {
