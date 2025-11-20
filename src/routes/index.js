@@ -3,8 +3,9 @@ const dashboardRouter = require("./dashBoard.routes");
 const dwellTimeRouter = require("./dwellTime.routes");
 const cameraZonesRouter = require("./cameraZones.route");
 const dataSynchronizationRouter = require("./dataSynchronization.route");
-const loginRouter = require("./login.routes");
+const authRouter = require("./auth.routes");
 const heatmapRouter = require("./heatmap.route");
+const storesRouter = require("./stores.routes");
 const { authenticationToken, authenticatioRole } = require("../middlewares/authentication");
 const Routes = (app) => {
   app.use("/api/v1/tracking",trackingRouter);
@@ -13,7 +14,8 @@ const Routes = (app) => {
   app.use("/api/v1/cameraZones", cameraZonesRouter);
   app.use("/api/v1/heatmap", heatmapRouter);
   app.use("/api/v1/dataSynchronization" ,dataSynchronizationRouter );
-  app.use("/api/v1/auth", loginRouter);
+  app.use("/api/v1/auth", authRouter);
+  app.use("/api/v1/stores", storesRouter);
   app.get(
     "/api/v1/getToken",
     authenticationToken,
