@@ -1,6 +1,6 @@
 const User = require('../schemas/user.model');
 const Store = require('../schemas/store.model');
-const { renderToken } = require('../utils/handleToken');
+const { renderToken ,verifyToken } = require('../utils/handleToken');
 const { comparePassword, hashPassword } = require('../utils/hashpassword');
 
 // Đăng nhập
@@ -18,20 +18,24 @@ const loginController = async (req, res) => {
       return res.status(400).json({ message: 'Account does not exist' });
     }
 
-    // So sánh password nhập vào với password đã hash
+    // So sánh password
     const isMatch = await comparePassword(password, checkUser.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Password is incorrect' });
     }
 
-    // Tạo token JWT
+    // Cập nhật status thành active
+    checkUser.status = 'active';
+    await checkUser.save();
+
+    // Tạo token
     const token = renderToken({
       id: checkUser._id,
       account: checkUser.account,
       role: checkUser.role
     });
 
-    // Lưu token trong cookie
+    // Lưu token vào cookie
     res.cookie('sessionToken', token, {
       httpOnly: true,
       secure: true,
@@ -46,6 +50,7 @@ const loginController = async (req, res) => {
         id: checkUser._id,
         account: checkUser.account,
         role: checkUser.role,
+        status: checkUser.status
       },
     });
 
@@ -54,6 +59,7 @@ const loginController = async (req, res) => {
     return res.status(500).json({ message: 'Internal server error' });
   }
 };
+
 // Đăng ký
 
 const registerController = async (req, res) => { 
@@ -140,8 +146,27 @@ const logoutController = async (req, res) => {
     return res.status(401).json({ message: 'Unauthorized' });
   }
 
-  res.clearCookie('sessionToken');
-  return res.status(200).json({ message: 'Logout success' });
+  try {
+    // Giải mã token để lấy user id
+    const decoded = verifyToken(req.cookies.sessionToken);
+
+    if (decoded?.id) {
+      // Tìm user theo id và cập nhật status
+      await User.findByIdAndUpdate(decoded.id, { status: 'inactive' });
+    }
+
+    // Xóa cookie
+    res.clearCookie('sessionToken');
+
+    return res.status(200).json({ message: 'Logout success' });
+
+  } catch (error) {
+    console.error('Logout Error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
 };
+
+
+
 
 module.exports = { loginController ,registerController, logoutController  };
