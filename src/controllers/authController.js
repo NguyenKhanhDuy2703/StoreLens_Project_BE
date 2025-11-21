@@ -17,8 +17,6 @@ const loginController = async (req, res) => {
     if (!checkUser) {
       return res.status(400).json({ message: 'Account does not exist' });
     }
-
-    // So sánh password nhập vào với password đã hash
     const isMatch = await comparePassword(password, checkUser.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Password is incorrect' });

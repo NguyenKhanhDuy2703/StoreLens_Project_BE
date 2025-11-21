@@ -48,6 +48,12 @@ const zoneSummariesData = [
       top_product_id: "P001",
       peak_hour: 12
     },
+    traffic_flow_timeline:[
+      { hour: 9, people_count: 20 },
+      { hour: 10, people_count: 35 },
+      { hour: 11, people_count: 40 },
+      { hour: 12, people_count: 50 },
+    ],
     trend: "up",
     created_at: new Date(),
     updated_at: new Date()
@@ -88,6 +94,12 @@ const zoneSummariesData = [
       top_product_id: "P002",
       peak_hour: 16
     },
+    traffic_flow_timeline:[
+      { hour: 9, people_count: 20 },
+      { hour: 10, people_count: 35 },
+      { hour: 11, people_count: 40 },
+      { hour: 12, people_count: 50 },
+    ],
     trend: "steady",
     created_at: new Date(),
     updated_at: new Date()
@@ -108,6 +120,12 @@ const zoneSummariesData = [
       top_product_id: null,
       peak_hour: 18
     },
+    traffic_flow_timeline:[
+      { hour: 9, people_count: 20 },
+      { hour: 10, people_count: 35 },
+      { hour: 11, people_count: 40 },
+      { hour: 12, people_count: 50 },
+    ],
     trend: "up",
     created_at: new Date(),
     updated_at: new Date()

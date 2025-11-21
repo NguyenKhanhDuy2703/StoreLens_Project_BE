@@ -21,14 +21,12 @@ const stopStracking = async (req , res ) => {
 }
 const getDataTracking = async (req , res) => {
   try {
-    
     const data = await personTrackingService.getDataTracking();
     const {url_rtsp} = data;
     const inforCamera = await cameraModel.findOne({ rtsp_url : url_rtsp }).select("-_id , camera_code , store_id ").lean();
     const {camera_code , store_id } = inforCamera;
     const dataTracking = data.data_tracking || {};
-    const heatmap = data.heatmap_data || {};
-    console.log(heatmap)
+    const heatmap = data.heatmap_data || {}
     await personTrackingService.saveDataTracking(dataTracking , camera_code , store_id);
     await personTrackingService.saveHeatmap(heatmap , camera_code , store_id);
     res.status(200).json({message : "Get data tracking successfully" , data : data});
