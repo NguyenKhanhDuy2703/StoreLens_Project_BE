@@ -3,8 +3,8 @@ const { Schema } = mongoose;
 
 const heatmapSchema = new Schema({
   store_id: { type: String, required: true },
-  camera_id: { type: String, required: true },
-  time_stamp: { type: Number },
+  camera_code: { type: String, required: true },
+  time_stamp: { type: Date }, // < 1h => backet 
   width_matrix: { type: Number },
   height_matrix: { type: Number },
   grid_size: { type: Number },
@@ -14,5 +14,5 @@ const heatmapSchema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
-
-module.exports = mongoose.model("Heatmap", heatmapSchema);
+const HeatmapModel = mongoose.model("Heatmap", heatmapSchema);
+module.exports = HeatmapModel

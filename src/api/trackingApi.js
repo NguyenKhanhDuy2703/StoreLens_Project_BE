@@ -1,8 +1,8 @@
 const axiosInstance = require('./index')
-const getTracking = async (timestamp) => {
+const getTracking = async (timestamp = 0  , url_rtsp) => {
     try{ 
         const response = await axiosInstance.get('/tracking_video',{
-            params: { timestamp }
+            params: { timestamp : timestamp   , url_rtsp : url_rtsp}
         });
         return response.data;
     }catch(error){
@@ -10,4 +10,22 @@ const getTracking = async (timestamp) => {
         throw error;
     }
 }
-module.exports = {getTracking}
+const stopTracking = async () => {
+    try {
+        const response = await axiosInstance.get('/stop_tracking');
+        return response.data;
+    } catch (error) {
+        console.error("Error stopping tracking:", error.data || error.message);
+        throw error;
+    }
+}
+const getDataFromTracking = async () => {
+    try{
+        const response = await axiosInstance.get('/data_tracking');
+        return response.data;   
+    }catch(error){
+        console.error("Error getting tracking data:", error.data || error.message);
+        throw error;
+    }
+}
+module.exports = {getTracking  , stopTracking , getDataFromTracking}

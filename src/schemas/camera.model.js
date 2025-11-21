@@ -21,5 +21,6 @@ const camerasSchema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now }
 });
+const cameraModel = mongoose.model("Cameras", camerasSchema);
 
-module.exports = mongoose.model("Cameras", camerasSchema);
+module.exports = cameraModel;

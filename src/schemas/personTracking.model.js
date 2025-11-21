@@ -3,7 +3,7 @@ const { Schema } = mongoose;
 
 const personTrackingSchema = new Schema({
   store_id: { type: String, required: true },
-  camera_id: { type: String, required: true },
+  camera_code: { type: String, required: true },
   person_id: { type: String, required: true },
   session_id: { type: String },
   timestamp: { type: Number },
@@ -22,5 +22,5 @@ const personTrackingSchema = new Schema({
   created_at: { type: Date, default: Date.now },
   updated_at: { type: Date, default: Date.now },
 });
-
-module.exports = mongoose.model("PersonTracking", personTrackingSchema);
+const personTrackingModel = mongoose.model("PersonTracking", personTrackingSchema ,"persontrackings");
+module.exports = personTrackingModel

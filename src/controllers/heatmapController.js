@@ -1,84 +1,39 @@
+const { he } = require("date-fns/locale");
 const heatmapModel = require("../schemas/heatmap.model");
-const { getDateRangeVN } = require("../service/dashBoardService");
-const heatmapService = require("../service/heatmapService");
-
-// Lấy dữ liệu heatmap
-const getHeatmapData = async (req, res) => {
+const ZoneModel = require("../schemas/zone.model");
+const ZoneSummary = require("../schemas/zonesSummary.model");
+const heatmapBucketsZScore = require("../dataSampleHeatmap");
+/// fillter data : range time ,  => chia dữ liệu API theo từng khung giờ hoặc nữa  tiếng 
+const getDataHeatmap = async (req, res) => {
   try {
-    const { store_id, range } = req.query;
-    const { start, end } = getDateRangeVN(range || "today");
-
-    const query = { created_at: { $gte: start, $lte: end } };
-    if (store_id) query.store_id = store_id;
-
-    const heatmaps = await heatmapModel.find(query).lean();
-
-    res.status(200).json({
-      store_id: store_id || "all",
-      data: heatmaps
-    });
+    const { store_id, camera_code } = req.query;
+    // const range = req.query.range
+    const result = await heatmapModel.find({ store_id, camera_code }).select('-_id -__v');   
+    res.status(200).json({ message: 'Heatmap data retrieved successfully', data : result });
   } catch (error) {
-    res.status(500).json({ message: "Failed to get heatmap data", error: error.message });
+    res.status(500).json({ message: 'Error retrieving heatmap data', error: error.message });
   }
 };
-
-// Top 5 khu vực đông khách
-const getTopCategories = async (req, res) => {
+const metricsHeatmap = async (req, res) => {
   try {
-    const { store_id, range } = req.query;
-    const { start, end } = getDateRangeVN(range || "today");
-
-    const query = { created_at: { $gte: start, $lte: end } };
-    if (store_id) query.store_id = store_id;
-
-    const heatmaps = await heatmapModel.find(query).lean();
-    const topAreas = heatmapService.calculateTopAreas(heatmaps);
-
-    res.status(200).json({ store_id: store_id || "all", data: topAreas });
+    const { store_id, camera_code } = req.query;
+    const result = await ZoneSummary.find({
+      store_id, camera_code
+    }).select('-_id -performance -created_at -updated_at');
+    res.status(200).json({ message: 'Heatmap metrics retrieved successfully', data : result });
   } catch (error) {
-    res.status(500).json({ message: "Failed to get top areas", error: error.message });
+    res.status(500).json({ message: 'Error retrieving heatmap metrics', error: error.message });
   }
-};
-
-// Thống kê “nhiệt độ”
-const getTemperatureStats = async (req, res) => {
+}
+const saveHeatmap = async (req, res) => {
   try {
-    const { store_id, range } = req.query;
-    const { start, end } = getDateRangeVN(range || "today");
-
-    const query = { created_at: { $gte: start, $lte: end } };
-    if (store_id) query.store_id = store_id;
-
-    const heatmaps = await heatmapModel.find(query).lean();
-    const temperatureStats = heatmapService.calculateTemperatureStats(heatmaps);
-
-    res.status(200).json({ store_id: store_id || "all", data: [temperatureStats] });
+    for (const heatmapData of heatmapBucketsZScore) {
+      let newHeatmap = new heatmapModel(heatmapData);
+      await newHeatmap.save();
+    }
+      res.status(200).json({ message: 'Heatmap data saved successfully'  , heatmapBucketsZScore});
   } catch (error) {
-    res.status(500).json({ message: "Failed to get temperature stats", error: error.message });
+    res.status(500).json({ message: 'Error saving heatmap data', error: error.message });
   }
-};
-
-// Phân tích theo giờ
-const getHourlyAnalysis = async (req, res) => {
-  try {
-    const { store_id, range } = req.query;
-    const { start, end } = getDateRangeVN(range || "today");
-
-    const query = { created_at: { $gte: start, $lte: end } };
-    if (store_id) query.store_id = store_id;
-
-    const heatmaps = await heatmapModel.find(query).lean();
-    const hourlyAnalysis = heatmapService.calculateHourlyAnalysis(heatmaps);
-
-    res.status(200).json({ store_id: store_id || "all", data: hourlyAnalysis });
-  } catch (error) {
-    res.status(500).json({ message: "Failed to get hourly analysis", error: error.message });
-  }
-};
-
-module.exports = {
-  getHeatmapData,
-  getTopCategories,
-  getTemperatureStats,
-  getHourlyAnalysis
-};
+}
+module.exports = { getDataHeatmap ,metricsHeatmap   , saveHeatmap};

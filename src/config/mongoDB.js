@@ -23,5 +23,3 @@ const connectionMongo = async () => {
 };
 
 module.exports = { connectionMongo };
-
-
