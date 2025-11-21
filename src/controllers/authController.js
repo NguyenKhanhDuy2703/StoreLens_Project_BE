@@ -1,124 +1,87 @@
-const User = require('../schemas/user.model');
-const Store = require('../schemas/store.model');
-const { renderToken ,verifyToken } = require('../utils/handleToken');
-const { comparePassword, hashPassword } = require('../utils/hashpassword');
+const userModel = require("../schemas/user.model");
+const storeModel = require("../schemas/store.model");
+const { renderToken, verifyToken } = require("../utils/handleToken");
+const { comparePassword, hashPassword } = require("../utils/hashpassword");
 
-// Đăng nhập
 const loginController = async (req, res) => {
   const { account, password } = req.body;
-
   if (!account || !password) {
-    return res.status(400).json({ message: 'Account and password are required' });
+    return res
+      .status(400)
+      .json({ message: "Account and password are required" });
   }
-
   try {
-    const checkUser = await User.findOne({ account: account });
-
+    const checkUser = await userModel.findOne({ account: account.trim() });
     if (!checkUser) {
-      return res.status(400).json({ message: 'Account does not exist' });
+      return res.status(400).json({ message: "Tài khoản  không tồn tại " });
     }
-    const isMatch = await comparePassword(password, checkUser.password);
+    const isMatch = await comparePassword(password.trim(), checkUser.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Password is incorrect' });
+      return res.status(400).json({ message: "Mật khẩu không chính xác" });
     }
-
-    // Cập nhật status thành active
-    checkUser.status = 'active';
-    await checkUser.save();
-
+    const checkStatus = await userModel.findOne({ account: account.trim(), status: "active" });
+    if (!checkStatus) {
+      return res.status(403).json({ message: "Tài khoản chưa được kích hoạt" });
+    }
     // Tạo token
     const token = renderToken({
       id: checkUser._id,
       account: checkUser.account,
-      role: checkUser.role
+      role: checkUser.role,
     });
-
     // Lưu token vào cookie
-    res.cookie('sessionToken', token, {
+    res.cookie("sessionToken", token, {
       httpOnly: true,
       secure: true,
       sameSite: "lax",
-      maxAge: 24 * 60 * 60 * 1000
+      maxAge: 24 * 60 * 60 * 1000,
     });
 
     return res.status(200).json({
-      message: 'Login success',
+      message: "Login success",
       token,
       user: {
         id: checkUser._id,
         account: checkUser.account,
         role: checkUser.role,
-        status: checkUser.status
+        status: checkUser.status,
       },
     });
-
   } catch (error) {
-    console.error('Login Error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error("Login Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-// Đăng ký
-
-const registerController = async (req, res) => { 
+const registerController = async (req, res) => {
   const { fullname, account, email, password, store_id } = req.body;
-
-  // Validate input
   if (!fullname || !account || !email || !password || !store_id) {
-    return res.status(400).json({ message: 'All fields are required' });
+    return res.status(400).json({ message: "All fields are required" });
   }
-
   try {
-    // Kiểm tra account/email đã tồn tại
-    const existingAccount = await User.findOne({ account });
+    const existingAccount = await userModel.exists({ account });
     if (existingAccount) {
-      return res.status(400).json({ message: 'Account already exists' });
+      return res.status(400).json({ message: "Account already exists" });
     }
-
-    const existingEmail = await User.findOne({ email });
+    const existingEmail = await userModel.exists({ email });
     if (existingEmail) {
-      return res.status(400).json({ message: 'Email already exists' });
+      return res.status(400).json({ message: "Email already exists" });
     }
-
-    // Kiểm tra store tồn tại
-    const store = await Store.findOne({ store_id });
+    const store = await storeModel.exists({ store_id });
     if (!store) {
-      return res.status(400).json({ message: 'Selected store does not exist' });
+      return res.status(400).json({ message: "Selected store does not exist" });
     }
-
-    // Hash password
     const hashedPassword = await hashPassword(password);
-
-    // Tạo user mới
-    const newUser = await User.create({
+     const newUser = await new userModel({
       fullname,
       account,
       email,
       password: hashedPassword,
       store_id,
-      role: 'manager',     // role luôn là manager
-      status: 'inactive'   // mặc định không active
-    });
-
-    // Tạo token
-    const token = renderToken({
-      id: newUser._id,
-      account: newUser.account,
-      role: newUser.role
-    });
-
-    // Set cookie token
-    res.cookie('sessionToken', token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'lax',
-      maxAge: 24 * 60 * 60 * 1000
-    });
-
-    // Trả về response có store_name
+      role: "manager", 
+      status: "inactive", 
+    }).save();
     return res.status(200).json({
-      message: 'User registered successfully',
-      token,
+      message: "User registered successfully",
       user: {
         id: newUser._id,
         account: newUser.account,
@@ -126,45 +89,27 @@ const registerController = async (req, res) => {
         email: newUser.email,
         role: newUser.role,
         store_id: newUser.store_id,
-        store_name: store.store_name, // lấy store_name từ schema
-        status: newUser.status
-      }
+        store_name: store.store_name, 
+        status: newUser.status,
+      },
     });
-
   } catch (error) {
-    console.error('Register Error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    return res.status(500).json({ message: error.message || "Internal server error" });
   }
 };
-
 // Đăng xuất
-
 const logoutController = async (req, res) => {
   if (!req.cookies.sessionToken) {
-    return res.status(401).json({ message: 'Unauthorized' });
+    return res.status(401).json({ message: "Unauthorized" });
   }
-
   try {
-    // Giải mã token để lấy user id
-    const decoded = verifyToken(req.cookies.sessionToken);
-
-    if (decoded?.id) {
-      // Tìm user theo id và cập nhật status
-      await User.findByIdAndUpdate(decoded.id, { status: 'inactive' });
-    }
-
-    // Xóa cookie
-    res.clearCookie('sessionToken');
-
-    return res.status(200).json({ message: 'Logout success' });
-
+    console.log("Logging out user with token:", req.cookies.sessionToken);
+    res.clearCookie("sessionToken");
+    return res.status(200).json({ message: "Logout success" });
   } catch (error) {
-    console.error('Logout Error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error("Logout Error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
-
-
-
-module.exports = { loginController ,registerController, logoutController  };
+module.exports = { loginController, registerController, logoutController };
