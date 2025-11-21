@@ -18,6 +18,11 @@ const zoneSummarySchema = new Schema(
       top_product_id: { type: String }, // mã sản phẩm nổi bật CỦA ZONE
       peak_hour: { type: Number, default: 0 }, // giờ cao điểm CỦA ZONE
     },
+    traffic_flow_timeline: [
+      { hour: { type: Number }, // giờ trong ngày 0-23
+        people_count: { type: Number, default: 0 }, // số người trong giờ đó
+      }
+    ],  
     trend: { type: String, enum: ["up", "down", "steady"], default: "steady" },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
