@@ -7,7 +7,7 @@ const routes = require("./routes/index");
 const { connectionMongo } = require("./config/mongoDB");
 const corsOptions = {
   origin: ["http://localhost:5173", " http://172.20.176.1:5173"], // Đảm bảo URL này khớp với frontend của bạn
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET", "POST", "PUT", 'PATCH', "DELETE"],
   credentials: true, // Nếu bạn đang gửi cookie hoặc xác thực
 };
 
