@@ -22,7 +22,6 @@ const dataSynchronizationController = async (req, res) => {
             error: error.message,
         });
     }
-
 }
 module.exports = {
     dataSynchronizationController
