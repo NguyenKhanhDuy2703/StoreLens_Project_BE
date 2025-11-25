@@ -1,4 +1,4 @@
-const { group } = require("console");
+
 const personTrackingModel = require("../schemas/personTracking.schema.js");
 // Nhiệm vụ ham này dông bộ dữ liệu giữa các dịch vụ nếu cần thiết cho collection dailySummaries
 const synchronizeData = {
