@@ -5,6 +5,7 @@ const dataSynchronizationRouter = require("./dataSynchronization.route");
 const authRouter = require("./auth.routes");
 const heatmapRouter = require("./heatmap.route");
 const storesRouter = require("./stores.routes");
+const invoiceRouter = require("./pos.routes");
 const { authenticationToken, authenticatioRole } = require("../middlewares/authentication");
 const Routes = (app) => {
   app.use("/api/v1/tracking",trackingRouter);
@@ -14,6 +15,7 @@ const Routes = (app) => {
   app.use("/api/v1/dataSynchronization" ,dataSynchronizationRouter );
   app.use("/api/v1/auth", authRouter);
   app.use("/api/v1/stores", storesRouter);
+  app.use("/api/v1/pos", invoiceRouter);
   app.get(
     "/api/v1/getToken",
     authenticationToken,

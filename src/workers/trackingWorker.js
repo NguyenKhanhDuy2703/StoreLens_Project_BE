@@ -7,6 +7,7 @@ const BATCH_SIZE = 20;
 const PROCESSING_INTERVAL = 2000; 
 const PROCESSING_INTERVAL_HEATMAP = 5000;
 const personTrackingService = require("../service_AI/personTrackingService");
+const synchronizeRealTimeData = require("../service/dataSyncRealtime");
 const startTrackingAI = async () => {
   try {
     setInterval( async () => {
@@ -28,6 +29,7 @@ const startTrackingAI = async () => {
         }
         if(data.length >0){
           personTrackingService.saveDataTracking( data );
+          // synchronizeRealTimeData.syncRealTimeData( data );
         }
       }
       if(stopEventLength > 0){

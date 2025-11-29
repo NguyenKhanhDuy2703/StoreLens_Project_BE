@@ -13,7 +13,7 @@ const zoneSummarySchema = new Schema(
       total_sales_value: { type: Number, default: 0 }, // tổng giá trị bán hàng TẠI ZONE
       total_invoices: { type: Number, default: 0 }, // tổng hóa đơn liên quan TỚI ZONE
       conversion_rate: { type: Number, default: 0 }, // tỷ lệ chuyển đổi CỦA ZONE
-      avg_dwell_time: { type: Number, default: 0 }, // thời gian ở lại TB (phút) TRONG ZONE
+      total_dwell_time: { type: Number, default: 0 }, // tong thời gian dừng trong zone
       total_stop_events: { type: Number, default: 0 }, // số sự kiện dừng TRONG ZONE
       top_product_id: { type: String }, // mã sản phẩm nổi bật CỦA ZONE
       peak_hour: { type: Number, default: 0 }, // giờ cao điểm CỦA ZONE

@@ -83,4 +83,5 @@ const heatmapBucketsZScore = [
     updated_at: new Date("2025-10-13T10:00:00.000Z")
   }
 ]
+
 module.exports = heatmapBucketsZScore

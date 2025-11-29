@@ -26,6 +26,7 @@ const personTrackingService = {
       if (!data || data.length === 0) {
         return;
       }
+      
       for (const item of data) {
         const checkCamera = await cameraModel
           .findOne({ rtsp_url: item.rtsp_url })
@@ -41,6 +42,7 @@ const personTrackingService = {
             camera_code: camera_code,
             person_id: record.track_id,
           });
+      
           if (checkPersonExists) {
             // update person tracking data
             await personTrackingModel.updateOne(
@@ -52,7 +54,7 @@ const personTrackingService = {
               {
                 $set: {
                   updated_at: new Date(),
-                  timestamp: record.time_stamp,
+                  date: new Date(),
                 },
                 $push: {
                   path_data: record.position,
@@ -142,7 +144,7 @@ const personTrackingService = {
   },
   async saveStopEvent(data) {
     try {
-      console.log( data)
+
       for (const item of data) {
          const checkCamera = await cameraModel
         .findOne({ rtsp_url: item.rtsp_url })
@@ -150,13 +152,12 @@ const personTrackingService = {
         .lean();
       const { camera_code, store_id } = checkCamera;
         const { track_id, x_position, y_position, duration_s } = item.event;
-        console.log(camera_code , store_id , track_id)
         const checkPersonExists = await personTrackingModel.findOne({
           store_id: store_id,
           camera_code: camera_code,
           person_id: track_id,
         }).select({_id : 0 , persion_id : 1 , stop_events:1}).lean();
-        console.log("Check Person Exists:", checkPersonExists);
+  
         if (checkPersonExists) {
           await personTrackingModel.updateOne(
             {
