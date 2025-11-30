@@ -21,4 +21,4 @@ const invoiceSchema = new Schema({
   updated_at: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model("Invoices", invoiceSchema);
+module.exports = mongoose.model("invoices", invoiceSchema);

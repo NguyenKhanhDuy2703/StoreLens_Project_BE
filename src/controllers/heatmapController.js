@@ -1,4 +1,4 @@
-const { he } = require("date-fns/locale");
+
 const heatmapModel = require("../schemas/heatmap.model");
 const ZoneModel = require("../schemas/zone.model");
 const ZoneSummary = require("../schemas/zonesSummary.model");
