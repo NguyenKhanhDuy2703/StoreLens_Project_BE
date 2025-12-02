@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const {postInvoiceController} = require('../controllers/posController');
+const {postInvoiceController , addProductsController} = require('../controllers/posController');
 
 router.post('/invoices', postInvoiceController);
+router.post('/products' , addProductsController)
 module.exports = router;

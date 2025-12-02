@@ -25,8 +25,7 @@ const personTrackingService = {
     try {
       if (!data || data.length === 0) {
         return;
-      }
-      
+      }  
       for (const item of data) {
         const checkCamera = await cameraModel
           .findOne({ rtsp_url: item.rtsp_url })
@@ -42,7 +41,6 @@ const personTrackingService = {
             camera_code: camera_code,
             person_id: record.track_id,
           });
-      
           if (checkPersonExists) {
             // update person tracking data
             await personTrackingModel.updateOne(
@@ -94,15 +92,11 @@ const personTrackingService = {
             camera_code: camera_code,
           })
           .select("-_id , time_stamp");
-
         if (checkSession != null) {
           const oldTimestamp = new Date(checkSession.time_stamp).getTime() || 0;
           const currentTime = new Date().getTime();
           const FiveMinutes = 5 * 60 * 1000;
           if (currentTime - oldTimestamp < FiveMinutes) {
-            console.log("Cập nhật heatmap trong cùng phiên");
-            console.log("Old Timestamp:", new Date(oldTimestamp));
-            console.log("Current Time:", new Date(currentTime));
             // cập nhật heatmap hiện tại
             await heatmapModel.updateOne(
               {
@@ -121,7 +115,6 @@ const personTrackingService = {
           }
         } else {
           // tạo mới session heatmap
-          console.log("Tạo mới session heatmap");
           const newHeatmap = new heatmapModel({
             store_id: store_id,
             camera_code: camera_code,
@@ -129,8 +122,8 @@ const personTrackingService = {
             width_matrix: item.heatmap.width_matrix,
             height_matrix: item.heatmap.height_matrix,
             grid_size: item.heatmap.grid_size,
-            frame_width: item.heatmap.frame_width,
-            frame_height: item.heatmap.frame_height,
+            frame_width: item.heatmap.width_frame,
+            frame_height: item.heatmap.height_frame,
             heatmap_matrix: item.heatmap.heatmap_matrix,
             created_at: new Date(),
             updated_at: new Date(),
@@ -142,9 +135,9 @@ const personTrackingService = {
       throw error;
     }
   },
-  async saveStopEvent(data) {
+  async saveStopEvent(data ) {
     try {
-
+      
       for (const item of data) {
          const checkCamera = await cameraModel
         .findOne({ rtsp_url: item.rtsp_url })
@@ -157,7 +150,7 @@ const personTrackingService = {
           camera_code: camera_code,
           person_id: track_id,
         }).select({_id : 0 , persion_id : 1 , stop_events:1}).lean();
-  
+       
         if (checkPersonExists) {
           await personTrackingModel.updateOne(
             {

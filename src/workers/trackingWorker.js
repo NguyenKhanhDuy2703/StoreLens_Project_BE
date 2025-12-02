@@ -1,5 +1,4 @@
-
-const {redisClient}  = require("../config/redis")
+const {redisClient}  = require("../config/redis");
 const QUEUE_NAME_TRACKING = "storelens:tracking_queue";
 const QUEUE_NAME_STOP_EVENT = "storelens:events_queue";
 const QUEUE_NAME_HEATMAP = "storelens:heatmap_queue";
@@ -7,7 +6,7 @@ const BATCH_SIZE = 20;
 const PROCESSING_INTERVAL = 2000; 
 const PROCESSING_INTERVAL_HEATMAP = 5000;
 const personTrackingService = require("../service_AI/personTrackingService");
-const synchronizeRealTimeData = require("../service/dataSyncRealtime");
+const syncZonesData = require("../service/dataSyncZones");
 const startTrackingAI = async () => {
   try {
     setInterval( async () => {
@@ -29,7 +28,7 @@ const startTrackingAI = async () => {
         }
         if(data.length >0){
           personTrackingService.saveDataTracking( data );
-          // synchronizeRealTimeData.syncRealTimeData( data );
+          syncZonesData.processPeopleInZones(data);
         }
       }
       if(stopEventLength > 0){
@@ -44,7 +43,9 @@ const startTrackingAI = async () => {
           data.push( JSON.parse(rawListString));
         }
         if(data.length >0){
-          personTrackingService.saveStopEvent( data );
+      
+          personTrackingService.saveDataTracking( data );
+          syncZonesData.processPeopleInZones(data);
         }
       }
      

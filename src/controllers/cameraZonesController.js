@@ -1,6 +1,5 @@
 const cameraModel = require("../schemas/camera.model");
 const ZoneModel = require("../schemas/zone.model");
-const { camerasData, ZonesData } = require("../dataSample");
 const storeModel = require("../schemas/store.model");
 const cameraZonesController = async (req, res) => {
   try {
@@ -84,6 +83,7 @@ const saveNewCameras = async (req, res) => {
         message: `Store with id ${storeId} not found`,
       });
     }
+    console.log(ImageURL)
     const checkInfoZone = await ZoneModel.findOne({ camera_code: cameraCode  , store_id : storeId });
     if (checkInfoZone) {
       await ZoneModel.updateOne(
