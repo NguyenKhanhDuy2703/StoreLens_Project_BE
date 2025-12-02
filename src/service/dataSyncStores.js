@@ -31,19 +31,14 @@ const synchronizeStoreData = {
     {
         $project: {
             person_id: 1,
-            // Nếu stop_events null hoặc rỗng thì trả về mảng rỗng để không lỗi
             events: { $ifNull: ["$stop_events", []] }
         }
     },
     {
         $group: {
             _id: null,
-            // 1. Đếm TỔNG KHÁCH (bất kể có dừng hay không)
             uniquePeople: { $addToSet: "$person_id" },
-
-            // 2. Tính TỔNG THỜI GIAN DỪNG (Cộng dồn duration_s của tất cả item trong mảng events)
             totalDwellTime: { $sum: { $sum: "$events.duration_s" } },
-
             // 3. Đếm TỔNG LẦN DỪNG
             totalStopCount: { $sum: { $size: "$events" } }
         }
@@ -64,7 +59,6 @@ const synchronizeStoreData = {
     }
 ]);
       if (!visitorData.length) throw new Error("No visitor data found.");
-      console.log("Visitor Data:", visitorData);
       // Lấy dữ liệu invoice
       const invoiceData = await InvoiceModel.aggregate([
         { $match: { store_id: storeId, date: { $gte: start, $lte: end } } },

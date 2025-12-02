@@ -51,7 +51,8 @@ const dataSynchronizationZoneController = async (req, res) => {
                 message: "Missing required query parameters: storeId and date",
             });
         }
-        await syncZonesData.asyncZone({storeid: storeId , date: date});
+        await syncZonesData.processAsynZone({storeid: storeId , date: date});
+      
         res.status(200).json({
             message: "Zone data synchronization completed successfully",
         });

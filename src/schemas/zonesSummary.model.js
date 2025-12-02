@@ -17,7 +17,6 @@ const zoneSummarySchema = new Schema(
       total_stop_events: { type: Number, default: 0 }, // số sự kiện dừng TRONG ZONE
       avg_dwell_time: { type: Number, default: 0 }, // thời gian ở lại TB (phút) TRONG ZONE   
       top_product_id: { type: String }, // mã sản phẩm nổi bật CỦA ZONE
-      peak_hour: { type: Number, default: 0 }, // giờ cao điểm CỦA ZONE
     },
    
     // Xu hướng (up / down / steady) CỦA ZONE NÀY
