@@ -11,7 +11,7 @@ const invoiceRoutes = require('./invoice.routes');
 const { authenticationToken, authenticatioRole  } = require("../middlewares/authentication");
 const usersRouter = require("./user.routes");
 const invoiceRouter = require("./pos.routes");
-const { authenticationToken, authenticatioRole } = require("../middlewares/authentication");
+
 
 const Routes = (app) => {
   app.use("/api/v1/tracking",trackingRouter);

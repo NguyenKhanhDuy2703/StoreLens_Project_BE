@@ -14,8 +14,7 @@ exports.importInvoices = (req, res) => {
     workerData: {
       filePath: req.file.path, // Đường dẫn file vừa upload
       storeId: req.body.store_id, // Truyền store_id
-      // Truyền chuỗi kết nối DB để Worker tự connect (Lấy từ biến môi trường của Main Thread)
-      mongoURI: "mongodb+srv://truongthanhdat:truongthanhdat@cluster0.v5l4v9l.mongodb.net/storelens?retryWrites=true&w=majority&appName=Cluster0"
+      mongoURI: process.env.uriMonogoDB
     }
   });
 
