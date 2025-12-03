@@ -7,9 +7,11 @@ const productRouter = require("./product.routes");
 const authRouter = require("./auth.routes");
 const heatmapRouter = require("./heatmap.route");
 const storesRouter = require("./stores.routes");
+const invoiceRoutes = require('./invoice.routes');
+const { authenticationToken, authenticatioRole  } = require("../middlewares/authentication");
 const usersRouter = require("./user.routes");
 const invoiceRouter = require("./pos.routes");
-const { authenticationToken, authenticatioRole } = require("../middlewares/authentication");
+
 
 const Routes = (app) => {
   app.use("/api/v1/tracking",trackingRouter);
@@ -21,6 +23,7 @@ const Routes = (app) => {
   app.use("/api/v1/products", productRouter);
   app.use("/api/v1/auth", authRouter);
   app.use("/api/v1/stores", storesRouter);
+  app.use("/api/v1/invoices", invoiceRoutes);
   app.use("/api/v1/users", usersRouter);
   app.use("/api/v1/pos", invoiceRouter);
   app.get(
