@@ -1,7 +1,7 @@
-const multer  = require("multer")
-const cloudinary = require('cloudinary').v2;
-const { CloudinaryStorage } = require('multer-storage-cloudinary');
-require('dotenv').config();
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const { CloudinaryStorage } = require("multer-storage-cloudinary");
+require("dotenv").config();
 
 // Cloudinary config
 cloudinary.config({
@@ -22,20 +22,22 @@ const storage = new CloudinaryStorage({
 
 const upload = multer({ storage });
 
-const uploadSingle = upload.single("backgroundImage");
-
+// Upload single file
 const mwHandleUploadSingle = (req, res, next) => {
-  uploadSingle(req, res, (err) => {
+  
+ console.log("File uploaded to Cloudinary:", req.file);
+
+  upload.single("background_image")(req, res, (err) => {
     if (err) {
-      console.error(err);
       return res.status(400).json({
-        message: "Image upload failed",
+        message: "Upload failed",
         error: err.message,
       });
     }
-
+    
+    // Nếu có file thì thêm URL Cloudinary vào req.body
     if (req.file) {
-      req.body.ImageURL = req.file.path; // URL từ Cloudinary
+      req.body.ImageURL = req.file.path; 
     }
 
     next();

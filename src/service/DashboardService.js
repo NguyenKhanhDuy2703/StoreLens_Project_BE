@@ -5,7 +5,7 @@ const isoWeek = require('dayjs/plugin/isoWeek'); // Giúp xác định tuần ch
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(isoWeek);
-const getDateRangeVN = (range = 'today') => {
+const getDateRangeVN = (range ) => {
   const tz = 'Asia/Ho_Chi_Minh';
   const now = dayjs().tz(tz);
 

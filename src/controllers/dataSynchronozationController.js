@@ -1,18 +1,17 @@
-const ZoneSummary = require("../schemas/zonesSummary.model");
-const StoreSummary = require("../schemas/storesSummary.model");
-const {storeSummaryData ,zoneSummariesData } = require("../dataSample");
+const synchronizeStoreData = require("../service/dataSyncStores");
+const syncZonesData  = require ("../service/dataSyncZones")
 const dataSynchronizationController = async (req, res) => {
     try {
-        for (const summary of zoneSummariesData) {
-            console.log(summary)
-            let newSummary = new ZoneSummary(summary);
-            await newSummary.save();
+        const { storeId, date = new Date() } = req.query;
+        if (!storeId || !date) {
+            return res.status(400).json({
+                message: "Missing required query parameters: storeId and date",
+            });
         }
-        let storeSummary = new StoreSummary(storeSummaryData);
-        await storeSummary.save();
+       
+        await synchronizeStoreData.syncBatchDailySummaries({ storeId, date });
         res.status(200).json({
-            message: "Data Synchronization Controller is working",
-            data: { storeSummary, zoneSummariesData },
+            message: "Data synchronization completed successfully",
         });
     }
     catch (error) {
@@ -23,6 +22,49 @@ const dataSynchronizationController = async (req, res) => {
         });
     }
 }
+const dataSynchronizationRealTimeController = async (req, res) => {
+    try {
+        const { storeId, date = new Date() } = req.query;
+        if (!storeId || !date) {
+            return res.status(400).json({
+                message: "Missing required query parameters: storeId and date",
+            });
+        }
+        await synchronizeStoreData.syncRealTimeDailySummaries({ storeId, date });
+        res.status(200).json({
+            message: "Real-time data synchronization completed successfully",
+        });
+    }
+    catch (error) {
+        console.error("Error in dataSynchronizationRealTimeController:", error);
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+}
+const dataSynchronizationZoneController = async (req, res) => {
+    try{
+        const { storeId, date = new Date() } = req.query;
+        if (!storeId || !date) {
+            return res.status(400).json({
+                message: "Missing required query parameters: storeId and date",
+            });
+        }
+        await syncZonesData.processAsynZone({storeid: storeId , date: date});
+      
+        res.status(200).json({
+            message: "Zone data synchronization completed successfully",
+        });
+    }catch (error) {
+        console.error("Error in dataSynchronizationZoneController:", error);
+        res.status(500).json({
+            message: "Internal server error",
+            error: error.message,
+        });
+    }
+}
 module.exports = {
-    dataSynchronizationController
+    dataSynchronizationController ,
+    dataSynchronizationZoneController
 };
