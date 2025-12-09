@@ -2,21 +2,20 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 const zoneSummarySchema = new Schema(
   {
-    date: { type: Date, required: true, index: true },     // ngày tổng hợp
+    date: { type: Date, required: true, index: true },  
     store_id: { type: String, required: true, index: true },
-    zone_id: { type: String, required: true, index: true },  // zone cụ thể
+    zone_id: { type: String, required: true, index: true },
     camera_code: { type: String, required: true, index: true },
-    category_name: { type: String }, // tên khu vực: "Khu đồ uống", "Khu bánh kẹo"
-    // Dữ liệu hiệu suất của RIÊNG ZONE NÀY
+    category_name: { type: String },
     performance: {
-      people_count: { type: Number, default: 0 }, // tổng số người VÀO0 ZONE
-      total_sales_value: { type: Number, default: 0 }, // tổng giá trị bán hàng TẠI ZONE
-      total_invoices: { type: Number, default: 0 }, // tổng hóa đơn liên quan TỚI ZONE
-      conversion_rate: { type: Number, default: 0 }, // tỷ lệ chuyển đổi CỦA ZONE
-      total_stop_time: { type : Number , default :0 },  // tổng thời gian dừng trong ZONE
-      total_stop_events: { type: Number, default: 0 }, // số sự kiện dừng TRONG ZONE
-      avg_dwell_time: { type: Number, default: 0 }, // thời gian ở lại TB (phút) TRONG ZONE   
-      top_product_id: { type: String }, // mã sản phẩm nổi bật CỦA ZONE
+      people_count: { type: Number, default: 0 },
+      total_sales_value: { type: Number, default: 0 }, 
+      total_invoices: { type: Number, default: 0 }, 
+      conversion_rate: { type: Number, default: 0 }, 
+      total_stop_time: { type : Number , default :0 }, 
+      total_stop_events: { type: Number, default: 0 }, 
+      avg_dwell_time: { type: Number, default: 0 }, 
+      top_product_id: { type: String }, 
     },
    
     // Xu hướng (up / down / steady) CỦA ZONE NÀY

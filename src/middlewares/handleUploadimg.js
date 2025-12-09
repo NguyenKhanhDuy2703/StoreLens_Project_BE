@@ -39,6 +39,7 @@ const mwHandleUploadSingle = (req, res, next) => {
     if (req.file) {
       req.body.ImageURL = req.file.path; 
     }
+    console.log("File uploaded to Cloudinary:", req.body);
 
     next();
   });
