@@ -9,9 +9,10 @@ const getDataHeatmap = async (req, res) => {
     const { store_id, camera_code } = req.query;
     // const range = req.query.range
     const result = await heatmapModel.find({ store_id, camera_code }).select('-_id -__v');
-    const getImage = await ZoneModel.findOne({ store_id, camera_code }).select({_id : 0  , background_image : 1});
-    console.log("getImage" , getImage)
-    res.status(200).json({ message: 'Heatmap data retrieved successfully', data : {result , getImage}  });
+    const inforZone = await ZoneModel.findOne({ store_id, camera_code }).select({_id : 0  , background_image : 1 , zones : 1});
+    
+
+    res.status(200).json({ message: 'Heatmap data retrieved successfully', data : { heatmap : result  , zone_information : inforZone } });  
   } catch (error) {
     res.status(500).json({ message: 'Error retrieving heatmap data', error: error.message });
   }
