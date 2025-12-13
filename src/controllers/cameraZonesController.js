@@ -22,10 +22,10 @@ const cameraZonesController = async (req, res) => {
 };
 const getListCamera = async (req, res) => {
   try {
-    const { type = "" } = req.query;
+    const { storeId = ""  } = req.query;
     const listCameras = await cameraModel.aggregate([
       {
-        $match: type ? { camera_code: type } : {},
+        $match: storeId != "admin" ? { store_id: storeId } : {},
       },
       {
         $project: {
@@ -46,13 +46,14 @@ const getListCamera = async (req, res) => {
           localField: "camera_code",
           foreignField: "camera_code",
           as: "zones_info",
-        }
-      },{
-         $unwind: {
-            path: "$zones_info",
-            preserveNullAndEmptyArrays: true
-        }
-      }
+        },
+      },
+      {
+        $unwind: {
+          path: "$zones_info",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
     ]);
 
     res.status(200).json({
@@ -69,8 +70,14 @@ const getListCamera = async (req, res) => {
 const saveNewCameras = async (req, res) => {
   try {
     const { cameraCode } = req.params;
-    const {ImageURL , heightFrame ,widthFrame ,zones ,zoneId } = req.body;
-    const existingCamera = await cameraModel.findOne({ camera_code: cameraCode });
+    const { ImageURL, heightFrame, widthFrame, zones, zoneId } = req.body;
+
+    const parseZones = JSON.parse(zones);
+    console.log("Parsed Zones:", parseZones);
+
+    const existingCamera = await cameraModel.findOne({
+      camera_code: cameraCode,
+    });
     if (!existingCamera) {
       return res.status(404).json({
         message: `Camera with code ${cameraCode} not found`,
@@ -83,35 +90,36 @@ const saveNewCameras = async (req, res) => {
         message: `Store with id ${storeId} not found`,
       });
     }
-    console.log(ImageURL)
-    const checkInfoZone = await ZoneModel.findOne({ camera_code: cameraCode  , store_id : storeId });
+    const checkInfoZone = await ZoneModel.findOne({
+      camera_code: cameraCode,
+      store_id: storeId,
+    });
     if (checkInfoZone) {
-      await ZoneModel.updateOne(
-        { camera_code: cameraCode , store_id : storeId },
+      const test = await ZoneModel.updateOne(
+        { camera_code: cameraCode, store_id: storeId },
         {
           $set: {
             background_image: ImageURL,
             width_frame: widthFrame,
             height_frame: heightFrame,
-            zones: JSON.parse(zones),
+            zones: parseZones,
           },
         }
       );
-    }else{
+    } else {
       const newZone = new ZoneModel({
-      store_id: storeId,
-      camera_code: cameraCode,
-      zone_id : zoneId ,
-      background_image: ImageURL,
-      width_frame: widthFrame,
-      height_frame: heightFrame,
-      zones: JSON.parse(zones),
-    });
-    await newZone.save();
+        store_id: storeId,
+        camera_code: cameraCode,
+        zone_id: zoneId,
+        background_image: ImageURL,
+        width_frame: widthFrame,
+        height_frame: heightFrame,
+        zones: parseZones,
+      });
+      await newZone.save();
     }
     res.status(200).json({
       message: "New cameras saved successfully",
-
     });
   } catch (error) {
     res.status(500).json({
@@ -120,6 +128,7 @@ const saveNewCameras = async (req, res) => {
     });
   }
 };
+
 
 module.exports = {
   cameraZonesController,

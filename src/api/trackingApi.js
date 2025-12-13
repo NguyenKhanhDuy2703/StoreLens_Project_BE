@@ -1,8 +1,8 @@
 const axiosInstance = require('./index')
-const getTracking = async (timestamp = 0  , url_rtsp) => {
+const getTracking = async ( url_rtsp) => {
     try{ 
         const response = await axiosInstance.get('/tracking_video',{
-            params: { timestamp : timestamp   , url_rtsp : url_rtsp}
+            params: {url_rtsp : url_rtsp}
         });
         return response.data;
     }catch(error){

@@ -4,7 +4,8 @@ const { Schema } = mongoose;
 const heatmapSchema = new Schema({
   store_id: { type: String, required: true },
   camera_code: { type: String, required: true },
-  time_stamp: { type: Date }, // < 1h => backet 
+  time_stamp: { type : Number }, // < 1h => backet 
+  date: { type: Date, required: true }, // Ngày cụ thể
   width_matrix: { type: Number },
   height_matrix: { type: Number },
   grid_size: { type: Number },

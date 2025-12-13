@@ -1,4 +1,4 @@
-const { getDateRangeVN } = require("../service/dwellTimeSevice");
+const { getDateRangeVN } = require("../utils/tranformHoursVN");
 const ZoneSummary = require("../schemas/zonesSummary.model");
 const storeModel = require("../schemas/store.model");
 const { analyzeZone } = require("../utils/zoneAnalysisEngine");

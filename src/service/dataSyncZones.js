@@ -1,4 +1,4 @@
-const { getDateRangeVN } = require("../service/dashBoardService");
+const { getDateRangeVN } = require("../utils/tranformHoursVN");
 const storeModel = require("../schemas/store.model.js");
 const zoneModel = require("../schemas/zone.model.js");
 const personTrackingModel = require("../schemas/personTracking.model.js");
@@ -222,9 +222,7 @@ const syncZonesData = {
                 const checkExists = peopleSetEntryTime.has(person.track_id);
                 if (!checkExists) {
                   peopleSetEntryTime.add(person.track_id);
-                  console.log(
-                    `Person ${person.track_id} entered zone ${zoneItem.zone_id}`
-                  );
+                  
                   await this.updateZoneSummary({
                     storeId: CameraCode.store_id,
                     cameraCode: CameraCode.camera_code,
@@ -246,7 +244,7 @@ const syncZonesData = {
           } else {
             if (record.event != null || record.event != undefined) {
               if (record.event.event_type === "stop") {
-                console.log(record.event);
+                
               }
               const position = [
                 record.event.x_position,
@@ -263,7 +261,6 @@ const syncZonesData = {
                 );
                 if (!checkExists) {
                   peopleSetStopEvent.add(record.event.track_id);
-                  console.log(record.event);
                   await this.updateZoneSummary({
                     stopEvent: record.event,
                     stopEventCount: 1,

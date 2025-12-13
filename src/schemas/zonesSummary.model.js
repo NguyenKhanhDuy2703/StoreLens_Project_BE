@@ -17,15 +17,14 @@ const zoneSummarySchema = new Schema(
       avg_dwell_time: { type: Number, default: 0 }, 
       top_product_id: { type: String }, 
     },
-   
-    // Xu hướng (up / down / steady) CỦA ZONE NÀY
+ 
     trend: { type: String, enum: ["up", "down", "steady"], default: "steady" },
 
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
   },
   {
-    collection: "zonesummaries", // Đổi tên collection
+    collection: "zonesummaries", 
     versionKey: false,
     timestamps: { createdAt: "created_at", updatedAt: "updated_at" },
   }
