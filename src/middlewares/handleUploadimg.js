@@ -24,8 +24,6 @@ const upload = multer({ storage });
 
 // Upload single file
 const mwHandleUploadSingle = (req, res, next) => {
-  
- console.log("File uploaded to Cloudinary:", req.file);
 
   upload.single("background_image")(req, res, (err) => {
     if (err) {
@@ -34,12 +32,11 @@ const mwHandleUploadSingle = (req, res, next) => {
         error: err.message,
       });
     }
-    
-    // Nếu có file thì thêm URL Cloudinary vào req.body
     if (req.file) {
       req.body.ImageURL = req.file.path; 
+    }else{
+      req.body.ImageURL = req.body.background_image_url ;
     }
-    console.log("File uploaded to Cloudinary:", req.body);
 
     next();
   });

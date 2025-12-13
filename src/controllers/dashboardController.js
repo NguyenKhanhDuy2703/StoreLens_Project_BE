@@ -1,4 +1,4 @@
-const { getDateRangeVN } = require("../service/dashBoardService");
+const { getDateRangeVN } = require("../utils/tranformHoursVN");
 const storeModel = require("../schemas/store.model");
 const storeSummaryModel = require("../schemas/storesSummary.model");
 const ZoneSummary = require("../schemas/zonesSummary.model");

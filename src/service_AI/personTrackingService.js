@@ -1,11 +1,13 @@
 const {
   getTracking,
   stopTracking,
-  getDataFromTracking,
+  getDataFromTracking
+  
 } = require("../api/trackingApi");
 const cameraModel = require("../schemas/camera.model");
 const personTrackingModel = require("../schemas/personTracking.model");
 const heatmapModel = require("../schemas/heatmap.model");
+const BUCKET_DURATION_S = 0.25 * 60 ; // 15 minutes in seconds
 const personTrackingService = {
   async startTracking(cameraCode) {
     try {
@@ -13,9 +15,17 @@ const personTrackingService = {
         .findOne({ camera_code: cameraCode })
         .select({ _id: 0, rtsp_url: 1 })
         .lean();
+        console.log("Camera Info:", getInforCamera , cameraCode);
       const rtsp_url = getInforCamera.rtsp_url;
-      const trackingData = await getTracking(0, rtsp_url);
-      return trackingData;
+      const setActiveCamera = await cameraModel.updateOne(
+        { camera_code: cameraCode },
+        { $set: { status: "active", last_heartbeat: new Date() } }
+      );
+      if (setActiveCamera.acknowledged !== true) {
+        throw new Error("Failed to set camera as active");
+      }
+      await getTracking(rtsp_url);
+      return { status : true , message : `Tracking started for camera ${cameraCode}`};
     } catch (error) {
       console.error("Error in startTracking:", error);
       throw error;
@@ -31,7 +41,8 @@ const personTrackingService = {
           .findOne({ rtsp_url: item.rtsp_url })
           .select("-_id , camera_code , store_id ")
           .lean();
-        const { camera_code, store_id } = checkCamera;
+        
+        const { camera_code , store_id } = checkCamera;
         if (!item.data || item.data.length === 0) {
           continue;
         }
@@ -78,63 +89,59 @@ const personTrackingService = {
       throw error;
     }
   },
-  async saveHeatmap(data) {
+ async saveHeatmap(data) {
     try {
-      for (const item of data) {
-        const checkCamera = await cameraModel
-          .findOne({ rtsp_url: item.rtsp_url })
-          .select("-_id , camera_code , store_id ")
-          .lean();
-        const { camera_code, store_id } = checkCamera;
-        const checkSession = await heatmapModel
-          .findOne({
-            store_id: store_id,
-            camera_code: camera_code,
-          })
-          .select("-_id , time_stamp");
-        if (checkSession != null) {
-          const oldTimestamp = new Date(checkSession.time_stamp).getTime() || 0;
-          const currentTime = new Date().getTime();
-          const FiveMinutes = 5 * 60 * 1000;
-          if (currentTime - oldTimestamp < FiveMinutes) {
-            // cập nhật heatmap hiện tại
-            await heatmapModel.updateOne(
-              {
+        const promises = data.map(async (item) => {
+          console.log("Processing heatmap for RTSP URL:", item);
+            const checkCamera = await cameraModel
+                .findOne({ rtsp_url: item.rtsp_url })
+                .select("-_id , camera_code , store_id ")
+                .lean();
+            if (!checkCamera) {
+                console.warn(`Camera not found for RTSP URL: ${item.rtsp_url}. Skipping data.`);
+                return; 
+            }
+            const { camera_code, store_id } = checkCamera;
+            const now = new Date();
+            const bucketStartTimeMs = Math.floor(item.timestamp / BUCKET_DURATION_S) * BUCKET_DURATION_S;
+            console.log("Bucket Start Time (ms):", bucketStartTimeMs , item.timestamp);
+        
+            const dateOnly = new Date(); 
+       
+            const query = {
                 store_id: store_id,
                 camera_code: camera_code,
-                time_stamp: checkSession.time_stamp,
-              },
-              {
-                $set: {
-                  updated_at: new Date(),
-                  time_stamp: currentTime,
-                  heatmap_matrix: item.heatmap.heatmap_matrix,
+                time_stamp: bucketStartTimeMs 
+            };
+
+            const update = {
+              
+                $setOnInsert: {
+                    date: dateOnly,
+                    width_matrix: item.heatmap.width_matrix,
+                    height_matrix: item.heatmap.height_matrix,
+                    grid_size: item.heatmap.grid_size,
+                    frame_width: item.heatmap.width_frame,
+                    frame_height: item.heatmap.height_frame,
+                    created_at: now,
                 },
-              }
-            );
-          }
-        } else {
-          // tạo mới session heatmap
-          const newHeatmap = new heatmapModel({
-            store_id: store_id,
-            camera_code: camera_code,
-            time_stamp: new Date(),
-            width_matrix: item.heatmap.width_matrix,
-            height_matrix: item.heatmap.height_matrix,
-            grid_size: item.heatmap.grid_size,
-            frame_width: item.heatmap.width_frame,
-            frame_height: item.heatmap.height_frame,
-            heatmap_matrix: item.heatmap.heatmap_matrix,
-            created_at: new Date(),
-            updated_at: new Date(),
-          });
-          await newHeatmap.save();
-        }
-      }
+                $set: {
+                    heatmap_matrix: item.heatmap.heatmap_matrix, 
+                    updated_at: now, 
+                }
+            };
+            
+            await heatmapModel.updateOne(query, update, { upsert: true });
+        });
+        
+        await Promise.all(promises);
+
     } catch (error) {
-      throw error;
+
+        console.error("Error saving heatmap data:", error);
+        throw error;
     }
-  },
+},
   async saveStopEvent(data ) {
     try {
       
@@ -186,10 +193,17 @@ const personTrackingService = {
       throw error;
     }
   },
-  stopTracking() {
+  async stopTracking(CameraCode) {
     try {
-      stopTracking();
-      console.log("Tracking stopped.");
+      const setInactiveCamera = await cameraModel.updateOne(
+        { camera_code: CameraCode },
+        { $set: { status: "inactive" } }
+      );
+      if (setInactiveCamera.acknowledged !== true) {
+        throw new Error("Failed to set camera as inactive");
+      }
+      await stopTracking();
+      return  { status : true , message : `Tracking stopped for camera ${CameraCode}`};
     } catch (error) {
       throw error;
     }

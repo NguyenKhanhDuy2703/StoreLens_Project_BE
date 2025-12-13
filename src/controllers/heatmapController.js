@@ -2,13 +2,13 @@
 const heatmapModel = require("../schemas/heatmap.model");
 const ZoneModel = require("../schemas/zone.model");
 const ZoneSummary = require("../schemas/zonesSummary.model");
-
-/// fillter data : range time ,  => chia dữ liệu API theo từng khung giờ hoặc nữa  tiếng 
+const {getDateRangeVN} = require("../utils/tranformHoursVN");
 const getDataHeatmap = async (req, res) => {
   try {
     const { store_id, camera_code } = req.query;
-    // const range = req.query.range
-    const result = await heatmapModel.find({ store_id, camera_code }).select('-_id -__v');
+    const range = req.query.range || new Date();
+    const {start , end } = getDateRangeVN(range);
+    const result = await heatmapModel.find({ store_id, camera_code , date: {$gte :  start , $lte : end } }).select('-_id -__v');
     const inforZone = await ZoneModel.findOne({ store_id, camera_code }).select({_id : 0  , background_image : 1 , zones : 1});
     
 

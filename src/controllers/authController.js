@@ -28,6 +28,8 @@ const loginController = async (req, res) => {
       id: checkUser._id,
       account: checkUser.account,
       role: checkUser.role,
+      email: checkUser.email,
+      fullname: checkUser.fullname,
     });
     // Lưu token vào cookie
     res.cookie("sessionToken", token, {
@@ -112,4 +114,4 @@ const logoutController = async (req, res) => {
   }
 };
 
-module.exports = { loginController, registerController, logoutController };
+module.exports = { loginController, registerController, logoutController  };

@@ -1,11 +1,10 @@
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 const timezone = require('dayjs/plugin/timezone');
-const isoWeek = require('dayjs/plugin/isoWeek'); // Giúp xác định tuần chính xác (ISO standard)
-dayjs.extend(utc);
+const isoWeek = require('dayjs/plugin/isoWeek'); 
 dayjs.extend(timezone);
 dayjs.extend(isoWeek);
-const getDateRangeVN = (range = 'today') => {
+const getDateRangeVN = (range ) => {
   const tz = 'Asia/Ho_Chi_Minh';
   const now = dayjs().tz(tz);
 
@@ -57,4 +56,4 @@ const getDateRangeVN = (range = 'today') => {
   };
 };
 
-module.exports = {getDateRangeVN};
+module.exports = {getDateRangeVN };
