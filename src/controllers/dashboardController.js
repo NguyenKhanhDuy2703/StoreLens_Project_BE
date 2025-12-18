@@ -99,7 +99,9 @@ const getPerformanceZones = async (req, res) => {
     const checkStore = await storeModel.exists({
       store_id: store_id,
     });
-
+    if (!checkStore ) {
+      throw new Error("Store not found");
+    }
     const performanceZones = await ZoneSummary.find({
       store_id: store_id,
       date: { $gte: start, $lte: end },

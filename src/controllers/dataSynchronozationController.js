@@ -1,5 +1,6 @@
 const synchronizeStoreData = require("../service/dataSyncStores");
 const syncZonesData  = require ("../service/dataSyncZones")
+const {getDateRangeVN} = require("../utils/tranformHoursVN");
 const dataSynchronizationController = async (req, res) => {
     try {
         const { storeId, date = new Date() } = req.query;
@@ -9,7 +10,7 @@ const dataSynchronizationController = async (req, res) => {
             });
         }
        
-        await synchronizeStoreData.syncBatchDailySummaries({ storeId, date });
+        await synchronizeStoreData.syncBatchDailySummaries({ storeId, date});
         res.status(200).json({
             message: "Data synchronization completed successfully",
         });
@@ -45,13 +46,14 @@ const dataSynchronizationRealTimeController = async (req, res) => {
 }
 const dataSynchronizationZoneController = async (req, res) => {
     try{
-        const { storeId, date = new Date() } = req.query;
+        const { storeId, date  } = req.query;
         if (!storeId || !date) {
             return res.status(400).json({
                 message: "Missing required query parameters: storeId and date",
             });
         }
-        await syncZonesData.processAsynZone({storeid: storeId , date: date});
+        const { start, end } = getDateRangeVN(date);
+        await syncZonesData.processAsynZone({storeid: storeId , start , end});
       
         res.status(200).json({
             message: "Zone data synchronization completed successfully",

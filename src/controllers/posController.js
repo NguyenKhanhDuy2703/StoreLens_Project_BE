@@ -783,6 +783,7 @@ const productsData = [
   // DANH MỤC: MÌ GÓI & MÌ ĂN LIỀN
   {
     product_id: "PRD-001",
+    store_id: "STORE001",
     category_name: "Mì gói & Mì ăn liền",
     name_product: "Mì Hảo Hảo Tôm Chua Cay",
     brand: "Acecook",
@@ -795,6 +796,7 @@ const productsData = [
   },
   {
     product_id: "PRD-010",
+    store_id: "STORE001",
     category_name: "Mì gói & Mì ăn liền",
     name_product: "Mì Kokomi Tôm",
     brand: "Acecook",
@@ -807,6 +809,7 @@ const productsData = [
   },
   {
     product_id: "PRD-011",
+    store_id: "STORE001",
     category_name: "Mì gói & Mì ăn liền",
     name_product: "Mì Omachi Xào Bò",
     brand: "Masan",
@@ -819,6 +822,7 @@ const productsData = [
   },
   {
     product_id: "PRD-012",
+    store_id: "STORE001",
     category_name: "Mì gói & Mì ăn liền",
     name_product: "Mì 3 Miền Tôm Chua Cay",
     brand: "Asia Foods",
@@ -833,6 +837,7 @@ const productsData = [
   // DANH MỤC: NƯỚC GIẢI KHÁT
   {
     product_id: "PRD-002",
+    store_id: "STORE001",
     category_name: "Nước giải khát",
     name_product: "Nước Ngọt Pepsi 1.5L",
     brand: "Pepsi",
@@ -845,6 +850,7 @@ const productsData = [
   },
   {
     product_id: "PRD-013",
+    store_id: "STORE001",
     category_name: "Nước giải khát",
     name_product: "Nước Ngọt Coca Cola 1.5L",
     brand: "Coca Cola",
@@ -857,6 +863,7 @@ const productsData = [
   },
   {
     product_id: "PRD-014",
+    store_id: "STORE001",
     category_name: "Nước giải khát",
     name_product: "Trà Xanh Không Độ 450ml",
     brand: "Coca Cola",
@@ -869,6 +876,7 @@ const productsData = [
   },
   {
     product_id: "PRD-015",
+    store_id: "STORE001",
     category_name: "Nước giải khát",
     name_product: "Sting Dâu 330ml",
     brand: "Pepsi",
@@ -881,6 +889,7 @@ const productsData = [
   },
   {
     product_id: "PRD-016",
+    store_id: "STORE001",
     category_name: "Nước giải khát",
     name_product: "Nước Suối Lavie 1.5L",
     brand: "Lavie",
@@ -895,6 +904,7 @@ const productsData = [
   // DANH MỤC: TRỨNG
   {
     product_id: "PRD-003",
+    store_id: "STORE001",
     category_name: "Trứng & Thực phẩm tươi sống",
     name_product: "Trứng Gà V.L 10 Quả",
     brand: "Vĩnh Lộc",
@@ -907,6 +917,7 @@ const productsData = [
   },
   {
     product_id: "PRD-017",
+    store_id: "STORE001",
     category_name: "Trứng & Thực phẩm tươi sống",
     name_product: "Trứng Gà CP 10 Quả",
     brand: "CP",
@@ -921,6 +932,7 @@ const productsData = [
   // DANH MỤC: BÁNH KẸO & SNACK
   {
     product_id: "PRD-004",
+    store_id: "STORE001",
     category_name: "Bánh kẹo & Snack",
     name_product: "Bánh Gạo One One",
     brand: "Want Want",
@@ -933,6 +945,7 @@ const productsData = [
   },
   {
     product_id: "PRD-006",
+    store_id: "STORE001",
     category_name: "Bánh kẹo & Snack",
     name_product: "Snack Oishi Cay",
     brand: "Oishi",
@@ -945,6 +958,7 @@ const productsData = [
   },
   {
     product_id: "PRD-018",
+    store_id: "STORE001",
     category_name: "Bánh kẹo & Snack",
     name_product: "Kẹo Alpenliebe Sữa",
     brand: "Alpenliebe",
@@ -957,6 +971,7 @@ const productsData = [
   },
   {
     product_id: "PRD-019",
+    store_id: "STORE001",
     category_name: "Bánh kẹo & Snack",
     name_product: "Bánh Oreo Socola",
     brand: "Oreo",
@@ -969,6 +984,7 @@ const productsData = [
   },
   {
     product_id: "PRD-020",
+    store_id: "STORE001",
     category_name: "Bánh kẹo & Snack",
     name_product: "Snack Poca Khoai Tây",
     brand: "Oishi",
@@ -983,6 +999,7 @@ const productsData = [
   // DANH MỤC: SỮA & CHẾ PHẨM TỪ SỮA
   {
     product_id: "PRD-005",
+    store_id: "STORE001",
     category_name: "Sữa & Chế phẩm từ sữa",
     name_product: "Sữa Chua Vinamilk Lốc 4",
     brand: "Vinamilk",
@@ -995,6 +1012,7 @@ const productsData = [
   },
   {
     product_id: "PRD-021",
+    store_id: "STORE001",
     category_name: "Sữa & Chế phẩm từ sữa",
     name_product: "Sữa Tươi Vinamilk 1L",
     brand: "Vinamilk",
@@ -1007,6 +1025,7 @@ const productsData = [
   },
   {
     product_id: "PRD-022",
+    store_id: "STORE001",
     category_name: "Sữa & Chế phẩm từ sữa",
     name_product: "Sữa Đặc Ông Thọ 380g",
     brand: "Ông Thọ",
@@ -1021,6 +1040,7 @@ const productsData = [
   // DANH MỤC: GẠO & NGŨ CỐC
   {
     product_id: "PRD-007",
+    store_id: "STORE001",
     category_name: "Gạo & Ngũ cốc",
     name_product: "Gạo ST25 5kg",
     brand: "ST25",
@@ -1033,6 +1053,7 @@ const productsData = [
   },
   {
     product_id: "PRD-023",
+    store_id: "STORE001",
     category_name: "Gạo & Ngũ cốc",
     name_product: "Gạo Jasmine Nàng Hoa 5kg",
     brand: "Nàng Hoa",
@@ -1045,6 +1066,7 @@ const productsData = [
   },
   {
     product_id: "PRD-024",
+    store_id: "STORE001",
     category_name: "Gạo & Ngũ cốc",
     name_product: "Gạo Thơm Thiên Long 5kg",
     brand: "Thiên Long",
@@ -1059,6 +1081,7 @@ const productsData = [
   // DANH MỤC: DẦU ĂN & GIA VỊ
   {
     product_id: "PRD-008",
+    store_id: "STORE001",
     category_name: "Dầu ăn & Gia vị",
     name_product: "Dầu Ăn Neptune Light 1L",
     brand: "Neptune",
@@ -1071,6 +1094,7 @@ const productsData = [
   },
   {
     product_id: "PRD-009",
+    store_id: "STORE001",
     category_name: "Dầu ăn & Gia vị",
     name_product: "Đường Tinh Luyện Biên Hòa 1kg",
     brand: "Biên Hòa",
@@ -1083,6 +1107,7 @@ const productsData = [
   },
   {
     product_id: "PRD-025",
+    store_id: "STORE001",
     category_name: "Dầu ăn & Gia vị",
     name_product: "Nước Mắm Nam Ngư 650ml",
     brand: "Nam Ngư",
@@ -1095,6 +1120,7 @@ const productsData = [
   },
   {
     product_id: "PRD-026",
+    store_id: "STORE001",
     category_name: "Dầu ăn & Gia vị",
     name_product: "Mắm Tôm Huế 500g",
     brand: "Hương Xưa",
@@ -1107,6 +1133,7 @@ const productsData = [
   },
   {
     product_id: "PRD-027",
+    store_id: "STORE001",
     category_name: "Dầu ăn & Gia vị",
     name_product: "Tương Ớt Cholimex 250ml",
     brand: "Cholimex",
@@ -1119,6 +1146,7 @@ const productsData = [
   },
   {
     product_id: "PRD-028",
+    store_id: "STORE001",
     category_name: "Dầu ăn & Gia vị",
     name_product: "Bột Ngọt Ajinomoto 400g",
     brand: "Ajinomoto",
@@ -1131,6 +1159,7 @@ const productsData = [
   },
   {
     product_id: "PRD-029",
+    store_id: "STORE001",
     category_name: "Dầu ăn & Gia vị",
     name_product: "Muối I-ốt 500g",
     brand: "Vissan",
@@ -1145,6 +1174,7 @@ const productsData = [
   // DANH MỤC: THỰC PHẨM ĐÓNG HỘP
   {
     product_id: "PRD-030",
+    store_id: "STORE001",
     category_name: "Thực phẩm đóng hộp",
     name_product: "Cá Hộp Vissan 155g",
     brand: "Vissan",
@@ -1157,6 +1187,7 @@ const productsData = [
   },
   {
     product_id: "PRD-031",
+    store_id: "STORE001",
     category_name: "Thực phẩm đóng hộp",
     name_product: "Thịt Hộp Spam 340g",
     brand: "Spam",
@@ -1171,6 +1202,7 @@ const productsData = [
   // DANH MỤC: VỆ SINH NHÀ CỬA
   {
     product_id: "PRD-032",
+    store_id: "STORE001",
     category_name: "Vệ sinh nhà cửa",
     name_product: "Nước Rửa Chén Sunlight 750g",
     brand: "Sunlight",
@@ -1183,6 +1215,7 @@ const productsData = [
   },
   {
     product_id: "PRD-033",
+    store_id: "STORE001",
     category_name: "Vệ sinh nhà cửa",
     name_product: "Nước Lau Sàn Vim 900ml",
     brand: "Vim",
@@ -1195,6 +1228,7 @@ const productsData = [
   },
   {
     product_id: "PRD-034",
+    store_id: "STORE001",
     category_name: "Vệ sinh nhà cửa",
     name_product: "Nước Giặt OMO Matic 3.8kg",
     brand: "OMO",
@@ -1209,6 +1243,7 @@ const productsData = [
   // DANH MỤC: VỆ SINH CÁ NHÂN
   {
     product_id: "PRD-035",
+    store_id: "STORE001",
     category_name: "Vệ sinh cá nhân",
     name_product: "Kem Đánh Răng P/S 230g",
     brand: "P/S",
@@ -1221,6 +1256,7 @@ const productsData = [
   },
   {
     product_id: "PRD-036",
+    store_id: "STORE001",
     category_name: "Vệ sinh cá nhân",
     name_product: "Dầu Gội Clear Men 630ml",
     brand: "Clear",
@@ -1233,6 +1269,7 @@ const productsData = [
   },
   {
     product_id: "PRD-037",
+    store_id: "STORE001",
     category_name: "Vệ sinh cá nhân",
     name_product: "Xà Phòng Lifebouy 90g",
     brand: "Lifebuoy",
@@ -1242,9 +1279,272 @@ const productsData = [
     status: true,
     created_at: new Date("2024-01-15"),
     updated_at: new Date()
-  }
-];
+  },
 
+  // DANH MỤC: KHU VỰC THANH TOÁN
+  {
+    product_id: "PRD-038",
+    store_id: "STORE001",
+    category_name: "Khu vực thanh toán",
+    name_product: "Kẹo Cao Su Lotte Xylitol",
+    brand: "Lotte",
+    price: 12000,
+    unit: "hộp",
+    stock_quantity: 300,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-039",
+    store_id: "STORE001",
+    category_name: "Khu vực thanh toán",
+    name_product: "Kẹo Mentos Mint",
+    brand: "Mentos",
+    price: 8000,
+    unit: "gói",
+    stock_quantity: 350,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-040",
+    store_id: "STORE001",
+    category_name: "Khu vực thanh toán",
+    name_product: "Kẹo Mút Chupa Chups",
+    brand: "Chupa Chups",
+    price: 5000,
+    unit: "cái",
+    stock_quantity: 400,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-041",
+    store_id: "STORE001",
+    category_name: "Khu vực thanh toán",
+    name_product: "Bánh Snack Cosy Que 45g",
+    brand: "Bibica",
+    price: 6000,
+    unit: "gói",
+    stock_quantity: 280,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-042",
+    store_id: "STORE001",
+    category_name: "Khu vực thanh toán",
+    name_product: "Kẹo Bạc Hà Halls",
+    brand: "Halls",
+    price: 10000,
+    unit: "gói",
+    stock_quantity: 250,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-043",
+    store_id: "STORE001",
+    category_name: "Khu vực thanh toán",
+    name_product: "Socola Kit Kat 41.5g",
+    brand: "Nestlé",
+    price: 15000,
+    unit: "thanh",
+    stock_quantity: 220,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-044",
+    store_id: "STORE001",
+    category_name: "Khu vực thanh toán",
+    name_product: "Nước Tăng Lực Number 1 330ml",
+    brand: "Tân Hiệp Phát",
+    price: 9000,
+    unit: "lon",
+    stock_quantity: 200,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-045",
+    store_id: "STORE001",
+    category_name: "Khu vực thanh toán",
+    name_product: "Pin AA Panasonic (Vỉ 2 Viên)",
+    brand: "Panasonic",
+    price: 18000,
+    unit: "vỉ",
+    stock_quantity: 150,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-046",
+    store_id: "STORE001",
+    category_name: "Khu vực thanh toán",
+    name_product: "Bật Lửa Gas",
+    brand: "Generic",
+    price: 12000,
+    unit: "cái",
+    stock_quantity: 180,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-047",
+    store_id: "STORE001",
+    category_name: "Khu vực thanh toán",
+    name_product: "Túi Nilon Siêu Thị (Gói 100 Cái)",
+    brand: "Generic",
+    price: 25000,
+    unit: "gói",
+    stock_quantity: 120,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+
+  // DANH MỤC: KHU VỰC KHUYẾN MÃI
+  {
+    product_id: "PRD-048",
+    store_id: "STORE001",
+    category_name: "Khu vực khuyến mãi",
+    name_product: "Combo Mì Hảo Hảo Tôm Chua Cay (5 Gói)",
+    brand: "Acecook",
+    price: 20000,
+    unit: "combo",
+    stock_quantity: 200,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-049",
+    store_id: "STORE001",
+    category_name: "Khu vực khuyến mãi",
+    name_product: "Combo Nước Ngọt Coca Cola 330ml (6 Lon)",
+    brand: "Coca Cola",
+    price: 45000,
+    unit: "lốc",
+    stock_quantity: 150,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-050",
+    store_id: "STORE001",
+    category_name: "Khu vực khuyến mãi",
+    name_product: "Combo Snack Oishi (3 Gói Mix)",
+    brand: "Oishi",
+    price: 40000,
+    unit: "combo",
+    stock_quantity: 180,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-051",
+    store_id: "STORE001",
+    category_name: "Khu vực khuyến mãi",
+    name_product: "Nước Rửa Chén Sunlight 1.5kg (Tặng 500ml)",
+    brand: "Sunlight",
+    price: 85000,
+    unit: "combo",
+    stock_quantity: 100,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-052",
+    store_id: "STORE001",
+    category_name: "Khu vực khuyến mãi",
+    name_product: "Combo Dầu Gội + Sữa Tắm Clear Men",
+    brand: "Clear",
+    price: 220000,
+    unit: "combo",
+    stock_quantity: 80,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-053",
+    store_id: "STORE001",
+    category_name: "Khu vực khuyến mãi",
+    name_product: "Gạo ST25 10kg (Giá Đặc Biệt)",
+    brand: "ST25",
+    price: 340000,
+    unit: "túi",
+    stock_quantity: 60,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-054",
+    store_id: "STORE001",
+    category_name: "Khu vực khuyến mãi",
+    name_product: "Combo Sữa Chua Vinamilk (12 Hộp)",
+    brand: "Vinamilk",
+    price: 38000,
+    unit: "combo",
+    stock_quantity: 120,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-055",
+    store_id: "STORE001",
+    category_name: "Khu vực khuyến mãi",
+    name_product: "Dầu Ăn Neptune 2L (Tặng 500ml)",
+    brand: "Neptune",
+    price: 125000,
+    unit: "combo",
+    stock_quantity: 90,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-056",
+    store_id: "STORE001",
+    category_name: "Khu vực khuyến mãi",
+    name_product: "Combo Bánh Oreo + Bánh Gạo One One",
+    brand: "Mix Brand",
+    price: 55000,
+    unit: "combo",
+    stock_quantity: 110,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  },
+  {
+    product_id: "PRD-057",
+    store_id: "STORE001",
+    category_name: "Khu vực khuyến mãi",
+    name_product: "Nước Giặt OMO 6kg (Khuyến Mãi 50%)",
+    brand: "OMO",
+    price: 280000,
+    unit: "túi",
+    stock_quantity: 50,
+    status: true,
+    created_at: new Date("2024-01-15"),
+    updated_at: new Date()
+  }
+];      
 const productModel = require("../schemas/products.model");
 const addProductsController = async (req, res) => {
   try {
