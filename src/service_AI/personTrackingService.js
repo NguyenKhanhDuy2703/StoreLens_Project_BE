@@ -93,7 +93,6 @@ const personTrackingService = {
  async saveHeatmap(data) {
     try {
         const promises = data.map(async (item) => {
-          console.log("Processing heatmap for RTSP URL:", item);
             const checkCamera = await cameraModel
                 .findOne({ rtsp_url: item.rtsp_url })
                 .select("-_id , camera_code , store_id ")
@@ -146,7 +145,6 @@ const personTrackingService = {
 },
   async saveStopEvent(data ) {
     try {
-      console.log("Saving stop event data:", data);
       for (const item of data) {
          const checkCamera = await cameraModel
         .findOne({ rtsp_url: item.rtsp_url })

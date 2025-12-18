@@ -3,23 +3,7 @@ const zoneModel = require("../schemas/zone.model.js");
 const invoiceModel = require("../schemas/invoice.model.js");
 const zonesSummary = require("../schemas/zonesSummary.model.js");
 const cameraModel = require("../schemas/camera.model.js");
-
-const isPointInPolygon = (point, vs) => {
-  if (!point || point.length < 2) return false;
-  let x = point[0],
-    y = point[1];
-  let inside = false;
-  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-    let xi = vs[i][0],
-      yi = vs[i][1];
-    let xj = vs[j][0],
-      yj = vs[j][1];
-    let intersect =
-      yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-    if (intersect) inside = !inside;
-  }
-  return inside;
-};
+const isPointInPolygon = require("../utils/isPointInPolygon");
 let zoneCache = {};
 const ensureCache = (storeId, cameraCode, zoneId) => {
   if (!peopleInZoneStatus[storeId]) {
@@ -78,7 +62,7 @@ const getCameraFromRTSP = async (rtspUrl) => {
   return camera;
 };
 let peopleInZoneStatus = {};
-
+// Object Đồng bộ dữ liệu zones
 const syncZonesData = {
   async processAsynZone({ storeid, start , end }) {
     try {
@@ -105,7 +89,7 @@ const syncZonesData = {
         {
           $lookup: {
             from: "products",
-            localField: "$_id.product_id",
+            localField: "_id.product_id",
             foreignField: "product_id",
             as: "product_info",
           },
@@ -119,7 +103,7 @@ const syncZonesData = {
         {
           $project: {
             _id: 0,
-            product_id: "$_id",
+            product_id: "$_id.product_id",
             product_name: 1,
             total_quantity: 1,
             total_revenue: 1,
@@ -131,6 +115,7 @@ const syncZonesData = {
         .find({ store_id: storeid })
         .select({ _id: 0, camera_code: 1, zones: 1 })
         .lean();
+      // Tạo map để tra cứu nhanh zone theo category_name
       const zoneInfoMap = new Map();
       for (const doc of listZone) {
         const cameraCode = doc.camera_code;
@@ -192,158 +177,200 @@ const syncZonesData = {
     }
   },
   async processPeopleInZones(data) {
-    try {
-      for (const record of data) {
-        const { rtsp_url } = record;
-        const CameraCode = await getCameraFromRTSP(rtsp_url);
-        if (!CameraCode) {
-          continue;
-        }
-        if (!zoneCache[CameraCode.store_id]) {
-          zoneCache[CameraCode.store_id] = await getZones(CameraCode.store_id);
-        }
-        const zoneForCamera = zoneCache[CameraCode.store_id]?.find(
-          (z) => z.camera_code === CameraCode.camera_code
+  try {
+    for (const record of data) {
+      const { rtsp_url } = record;
+      const CameraCode = await getCameraFromRTSP(rtsp_url);
+      if (!CameraCode) continue;
+
+      if (!zoneCache[CameraCode.store_id]) {
+        zoneCache[CameraCode.store_id] = await getZones(CameraCode.store_id);
+      }
+      
+      const zoneForCamera = zoneCache[CameraCode.store_id]?.find(
+        (z) => z.camera_code === CameraCode.camera_code
+      );
+      
+      if (!zoneForCamera) continue;
+
+      for (const zoneItem of zoneForCamera.zones) {
+        ensureCache(
+          CameraCode.store_id,
+          CameraCode.camera_code,
+          zoneItem.zone_id,
+          zoneItem.category_name
         );
-        if (!zoneForCamera) {
-          continue;
-        }
 
-        for (const zoneItem of zoneForCamera.zones) {
-          ensureCache(
-            CameraCode.store_id,
-            CameraCode.camera_code,
-            zoneItem.zone_id,
-            zoneItem.category_name
-          );
-          if (record.data != null) {
-            for (const person of record.data) {
-              const positions = person.position;
-              if (positions.length === 0) continue;
+        // --- 1. XỬ LÝ NGƯỜI VÀO VÙNG (Tracking) ---
+        if (record.data && Array.isArray(record.data)) {
+          for (const person of record.data) {
+            const positions = person.position;
+            if (!positions || positions.length === 0) continue;
 
-              // Kiểm tra nếu điểm nằm trong vùng
-              const isInZone = isPointInPolygon(
-                positions,
-                zoneItem.coordinates
-              );
-              // Xử lý logic khi người vào vùng
-              const peopleSetEntryTime =
-                peopleInZoneStatus[CameraCode.store_id][CameraCode.camera_code][
-                  zoneItem.zone_id
-                ]["entryTimes"];
-              if (isInZone) {
-                const checkExists = peopleSetEntryTime.has(person.track_id);
-                if (!checkExists) {
-                  peopleSetEntryTime.add(person.track_id);
+            const isInZone = isPointInPolygon(positions, zoneItem.coordinates);
+            
+            if (isInZone) {
+              const peopleSetEntryTime = peopleInZoneStatus[CameraCode.store_id]
+                [CameraCode.camera_code][zoneItem.zone_id]["entryTimes"];
+              
+              const checkExists = peopleSetEntryTime.has(person.track_id);
+              if (!checkExists) {
+                peopleSetEntryTime.add(person.track_id);
 
-                  await this.updateZoneSummary({
-                    storeId: CameraCode.store_id,
-                    cameraCode: CameraCode.camera_code,
-                    zoneId: zoneItem.zone_id,
-                    category_name: zoneItem.category_name,
-                    date: new Date(),
-                    peopleCount: 1,
-                  });
-                }
+                await this.updateZoneSummary({
+                  storeId: CameraCode.store_id,
+                  cameraCode: CameraCode.camera_code,
+                  zoneId: zoneItem.zone_id,
+                  categoryName: zoneItem.category_name,
+                  date: new Date(),
+                  peopleCount: 1,
+                });
               }
-              // Giới hạn kích thước của Set để tránh sử dụng bộ nhớ quá mức
+
+              // Cleanup bộ nhớ
               if (peopleSetEntryTime.size > 200) {
+                const iterator = peopleSetEntryTime.values();
                 let count = 0;
-                for (const pid of peopleSetEntryTime) {
-                  peopleSetEntryTime.delete(pid);
+                while(count < 50) {
+                  peopleSetEntryTime.delete(iterator.next().value);
                   count++;
-                  if (count >= 50) break;
                 }
               }
             }
-             if (record.event.event_type != "stop") continue;
-              const position = [
-                record.event.x_position,
-                record.event.y_position,
-              ];
-              const isInZone = isPointInPolygon(position, zoneItem.coordinates);
-              if (isInZone) {
-                const peopleSetStopEvent =
-                  peopleInZoneStatus[CameraCode.store_id][
-                    CameraCode.camera_code
-                  ][zoneItem.zone_id]["stopEvent"];
-                const checkExists = peopleSetStopEvent.has(
-                  record.event.track_id
-                );
-                if (!checkExists) {
-                  peopleSetStopEvent.add(record.event.track_id);
-                  await this.updateZoneSummary({
-                    stopEvent: record.event,
-                    stopEventCount: 1,
-                    storeId: CameraCode.store_id,
-                    categoryName : zoneItem.category_name,
-                    cameraCode: CameraCode.camera_code,
-                    zoneId: zoneItem.zone_id,
-                    date: new Date(),
-                    peopleCount: 0,
-                  });
-                }
-              }
-          } 
+          }
+        }
+
+        // --- 2. XỬ LÝ SỰ KIỆN DỪNG (Stop Event) ---
+        if (record.event && record.event.event_type === "stop") {
+        
+          const position = [
+            record.event.x_position,
+            record.event.y_position,
+          ];
+          const isInZone = isPointInPolygon(position, zoneItem.coordinates);
+          if (isInZone) {
+            const peopleSetStopEvent = peopleInZoneStatus[CameraCode.store_id]
+              [CameraCode.camera_code][zoneItem.zone_id]["stopEvent"];
+              
+            const checkExists = peopleSetStopEvent.has(record.event.track_id);
+            
+            if (!checkExists) {
+              peopleSetStopEvent.add(record.event.track_id);
+              
+              await this.updateZoneSummary({
+                stopEvent: record.event,
+                stopEventCount: 1,
+                storeId: CameraCode.store_id,
+                categoryName: zoneItem.category_name,
+                cameraCode: CameraCode.camera_code,
+                zoneId: zoneItem.zone_id,
+                date: new Date(),
+                peopleCount: 0,
+              });
+            }
+            
+            // Cleanup bộ nhớ cho stopEvent
+            if (peopleSetStopEvent.size > 200) {
+               const iterator = peopleSetStopEvent.values();
+               let count = 0;
+               while(count < 50) {
+                 peopleSetStopEvent.delete(iterator.next().value);
+                 count++;
+               }
+            }
+          }
         }
       }
-    } catch (err) {
-      throw err;
     }
-  },
+  } catch (err) {
+    console.error("Error in processPeopleInZones:", err); 
+    throw err;
+  }
+},
   // hàm cập nhật dữ liệu vào zonesSummary
-  async updateZoneSummary({
+ async updateZoneSummary({
     storeId,
     zoneId,
     date,
-    peopleCount,
+    peopleCount = 0,
     cameraCode,
     stopEvent,
-    stopEventCount,
-    categoryName
+    stopEventCount = 0,
+    categoryName,
   }) {
     try {
       const { start, end } = getDateRangeVN(date);
+      const incStopTime = stopEvent ? stopEvent.duration_s : 0;
+      const incStopEvents = stopEventCount || 0;
+
       const checkSummary = await zonesSummary.findOne({
         store_id: storeId,
         zone_id: zoneId,
         date: { $gte: start, $lte: end },
       });
+
       if (checkSummary) {
-        const result = await zonesSummary.updateOne(
+        await zonesSummary.updateOne(
           {
             store_id: storeId,
             zone_id: zoneId,
             date: { $gte: start, $lte: end },
           },
-          {
-            $set: { 
-              updated_at: new Date() ,
-              category_name : categoryName
-
+          [
+            {
+              $set: {
+                updated_at: new Date(),
+                category_name: categoryName,
+                // Cộng dồn các chỉ số (tương đương $inc cũ)
+                "performance.people_count": {
+                  $add: [{ $ifNull: ["$performance.people_count", 0] }, peopleCount],
+                },
+                "performance.total_stop_time": {
+                  $add: [{ $ifNull: ["$performance.total_stop_time", 0] }, incStopTime],
+                },
+                "performance.total_stop_events": {
+                  $add: [{ $ifNull: ["$performance.total_stop_events", 0] }, incStopEvents],
+                },
+              },
             },
-            $inc: {
-              "performance.people_count": peopleCount,
-              "performance.total_stop_time": stopEvent
-                ? stopEvent.duration_s
-                : 0,
-              "performance.total_stop_events": stopEventCount || 0,
+            {
+              // Tính toán lại trung bình dựa trên giá trị vừa cộng
+              $set: {
+                "performance.avg_dwell_time": {
+                  $cond: [
+                    { $eq: ["$performance.total_stop_events", 0] },
+                    0,
+                    {
+                      $divide: [
+                        "$performance.total_stop_time",
+                        "$performance.total_stop_events",
+                      ],
+                    },
+                  ],
+                },
+              },
             },
-          },
-          { upsert: true }
+          ]
         );
       } else {
-        // Tạo mới bản ghi
+        const initialStopTime = stopEvent ? stopEvent.duration_s : 0;
+        const initialStopEvents = stopEventCount || 0;
+        const initialAvg = initialStopEvents > 0 ? initialStopTime / initialStopEvents : 0;
+
         const newSummary = new zonesSummary({
           camera_code: cameraCode,
           store_id: storeId,
           zone_id: zoneId,
           date: new Date(),
-          category_name : categoryName,
+          category_name: categoryName,
           performance: {
-            people_count: peopleCount ? peopleCount : 0,
-            total_stop_time: stopEvent ? stopEvent.duration_s : 0,
-            total_stop_events: stopEventCount ? stopEventCount : 0,
+            people_count: peopleCount || 0,
+            total_stop_time: initialStopTime,
+            total_stop_events: initialStopEvents,
+            avg_dwell_time: initialAvg, 
+            total_sales_value: 0,
+            total_invoices: 0,
+            conversion_rate: 0,
           },
           created_at: new Date(),
           updated_at: new Date(),
@@ -351,13 +378,13 @@ const syncZonesData = {
         await newSummary.save();
       }
     } catch (err) {
+      console.error("Error in updateZoneSummary:", err);
       throw err;
     }
   },
   async saveZoneSummary({ storeid, zoneStats, start , end }) {
     try {
       for (const item of Object.values(zoneStats)) {
-        console.log("Processing zone summary for zone ID:", item);
         const checkSummary = await zonesSummary.findOne({
           store_id: storeid,
           zone_id: item.zone_id,
