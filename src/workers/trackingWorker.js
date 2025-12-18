@@ -43,8 +43,7 @@ const startTrackingAI = async () => {
           data.push( JSON.parse(rawListString));
         }
         if(data.length >0){
-      
-          personTrackingService.saveDataTracking( data );
+          personTrackingService.saveStopEvent( data );
           syncZonesData.processPeopleInZones(data);
         }
       }

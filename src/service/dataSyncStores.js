@@ -6,7 +6,6 @@ const { getDateRangeVN } = require("../utils/tranformHoursVN");
 const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 const timezone = require("dayjs/plugin/timezone");
-const { time } = require("console");
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
@@ -39,7 +38,6 @@ const synchronizeStoreData = {
             _id: null,
             uniquePeople: { $addToSet: "$person_id" },
             totalDwellTime: { $sum: { $sum: "$events.duration_s" } },
-            // 3. Đếm TỔNG LẦN DỪNG
             totalStopCount: { $sum: { $size: "$events" } }
         }
     },

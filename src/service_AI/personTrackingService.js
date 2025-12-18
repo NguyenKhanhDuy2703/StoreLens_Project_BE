@@ -8,6 +8,7 @@ const cameraModel = require("../schemas/camera.model");
 const personTrackingModel = require("../schemas/personTracking.model");
 const heatmapModel = require("../schemas/heatmap.model");
 const BUCKET_DURATION_S = 0.25 * 60 ; // 15 minutes in seconds
+const {getDateRangeVN} = require ("../utils/tranformHoursVN.js")
 const personTrackingService = {
   async startTracking(cameraCode) {
     try {
@@ -107,11 +108,12 @@ const personTrackingService = {
             console.log("Bucket Start Time (ms):", bucketStartTimeMs , item.timestamp);
         
             const dateOnly = new Date(); 
-       
+            const {start , end} = getDateRangeVN(dateOnly);
             const query = {
                 store_id: store_id,
                 camera_code: camera_code,
-                time_stamp: bucketStartTimeMs 
+                date: { $gte: start , $lte: end },
+                time_stamp: bucketStartTimeMs,
             };
 
             const update = {
@@ -144,7 +146,7 @@ const personTrackingService = {
 },
   async saveStopEvent(data ) {
     try {
-      
+      console.log("Saving stop event data:", data);
       for (const item of data) {
          const checkCamera = await cameraModel
         .findOne({ rtsp_url: item.rtsp_url })

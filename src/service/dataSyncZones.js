@@ -1,11 +1,8 @@
 const { getDateRangeVN } = require("../utils/tranformHoursVN");
-const storeModel = require("../schemas/store.model.js");
 const zoneModel = require("../schemas/zone.model.js");
-const personTrackingModel = require("../schemas/personTracking.model.js");
 const invoiceModel = require("../schemas/invoice.model.js");
 const zonesSummary = require("../schemas/zonesSummary.model.js");
 const cameraModel = require("../schemas/camera.model.js");
-const productModel = require("../schemas/products.model.js");
 
 const isPointInPolygon = (point, vs) => {
   if (!point || point.length < 2) return false;
@@ -39,7 +36,6 @@ const ensureCache = (storeId, cameraCode, zoneId) => {
   }
 };
 const getZones = async (storeId) => {
-  console.log("Fetching zones for store:", storeId);
   if (zoneCache[storeId]) {
     return zoneCache[storeId];
   }
@@ -50,6 +46,7 @@ const getZones = async (storeId) => {
       camera_code: 1,
       "zones.zone_id": 1,
       "zones.coordinates": 1,
+      "zones.category_name": 1,
     })
     .lean();
 
@@ -58,12 +55,14 @@ const getZones = async (storeId) => {
     zones: doc.zones.map((z) => ({
       zone_id: z.zone_id,
       coordinates: z.coordinates,
+      category_name: z.category_name,
     })),
   }));
 
   return zoneCache[storeId];
 };
 const rtspCache = new Map();
+
 const getCameraFromRTSP = async (rtspUrl) => {
   if (rtspCache.has(rtspUrl)) {
     return rtspCache.get(rtspUrl);
@@ -79,10 +78,11 @@ const getCameraFromRTSP = async (rtspUrl) => {
   return camera;
 };
 let peopleInZoneStatus = {};
+
 const syncZonesData = {
-  async processAsynZone({ storeid, date }) {
+  async processAsynZone({ storeid, start , end }) {
     try {
-      const { start, end } = getDateRangeVN(date);
+      
       const listProductForCategory = await invoiceModel.aggregate([
         {
           $match: {
@@ -93,7 +93,10 @@ const syncZonesData = {
         { $unwind: "$products" },
         {
           $group: {
-            _id: "$products.product_id",
+            _id: {
+              product_id: "$products.product_id",
+              invoice_id: "$_id",
+            },
             product_name: { $first: "$products.name_product" },
             total_quantity: { $sum: "$products.quantity" },
             total_revenue: { $sum: "$products.total_price" },
@@ -102,7 +105,7 @@ const syncZonesData = {
         {
           $lookup: {
             from: "products",
-            localField: "_id",
+            localField: "$_id.product_id",
             foreignField: "product_id",
             as: "product_info",
           },
@@ -145,7 +148,9 @@ const syncZonesData = {
 
       for (const item of listProductForCategory) {
         if (!item.category_name) continue;
+        
         for (const z of zoneInfoMap.values()) {
+          if (z.category_name == null) continue;
           if (item.category_name === z.category_name) {
             if (!zoneStats[z.zone_id]) {
               zoneStats[z.zone_id] = {
@@ -176,7 +181,12 @@ const syncZonesData = {
           }
         }
       }
-      await this.saveZoneSummary({ storeid, zoneStats, date });
+      await this.saveZoneSummary({
+        storeid,
+        start,
+        end,
+        zoneStats,
+      });
     } catch (err) {
       console.error("Error in asyncZone:", err);
     }
@@ -186,13 +196,12 @@ const syncZonesData = {
       for (const record of data) {
         const { rtsp_url } = record;
         const CameraCode = await getCameraFromRTSP(rtsp_url);
-        if (!zoneCache[CameraCode.store_id]) {
-          zoneCache[CameraCode.store_id] = await getZones(CameraCode.store_id);
-        }
         if (!CameraCode) {
           continue;
         }
-
+        if (!zoneCache[CameraCode.store_id]) {
+          zoneCache[CameraCode.store_id] = await getZones(CameraCode.store_id);
+        }
         const zoneForCamera = zoneCache[CameraCode.store_id]?.find(
           (z) => z.camera_code === CameraCode.camera_code
         );
@@ -204,16 +213,20 @@ const syncZonesData = {
           ensureCache(
             CameraCode.store_id,
             CameraCode.camera_code,
-            zoneItem.zone_id
+            zoneItem.zone_id,
+            zoneItem.category_name
           );
-          if (record.data != null || record.data != undefined) {
+          if (record.data != null) {
             for (const person of record.data) {
               const positions = person.position;
               if (positions.length === 0) continue;
+
+              // Kiểm tra nếu điểm nằm trong vùng
               const isInZone = isPointInPolygon(
                 positions,
                 zoneItem.coordinates
               );
+              // Xử lý logic khi người vào vùng
               const peopleSetEntryTime =
                 peopleInZoneStatus[CameraCode.store_id][CameraCode.camera_code][
                   zoneItem.zone_id
@@ -222,16 +235,18 @@ const syncZonesData = {
                 const checkExists = peopleSetEntryTime.has(person.track_id);
                 if (!checkExists) {
                   peopleSetEntryTime.add(person.track_id);
-                  
+
                   await this.updateZoneSummary({
                     storeId: CameraCode.store_id,
                     cameraCode: CameraCode.camera_code,
                     zoneId: zoneItem.zone_id,
+                    category_name: zoneItem.category_name,
                     date: new Date(),
                     peopleCount: 1,
                   });
                 }
               }
+              // Giới hạn kích thước của Set để tránh sử dụng bộ nhớ quá mức
               if (peopleSetEntryTime.size > 200) {
                 let count = 0;
                 for (const pid of peopleSetEntryTime) {
@@ -241,11 +256,7 @@ const syncZonesData = {
                 }
               }
             }
-          } else {
-            if (record.event != null || record.event != undefined) {
-              if (record.event.event_type === "stop") {
-                
-              }
+             if (record.event.event_type != "stop") continue;
               const position = [
                 record.event.x_position,
                 record.event.y_position,
@@ -265,6 +276,7 @@ const syncZonesData = {
                     stopEvent: record.event,
                     stopEventCount: 1,
                     storeId: CameraCode.store_id,
+                    categoryName : zoneItem.category_name,
                     cameraCode: CameraCode.camera_code,
                     zoneId: zoneItem.zone_id,
                     date: new Date(),
@@ -272,14 +284,14 @@ const syncZonesData = {
                   });
                 }
               }
-            }
-          }
+          } 
         }
       }
     } catch (err) {
       throw err;
     }
   },
+  // hàm cập nhật dữ liệu vào zonesSummary
   async updateZoneSummary({
     storeId,
     zoneId,
@@ -288,6 +300,7 @@ const syncZonesData = {
     cameraCode,
     stopEvent,
     stopEventCount,
+    categoryName
   }) {
     try {
       const { start, end } = getDateRangeVN(date);
@@ -304,15 +317,17 @@ const syncZonesData = {
             date: { $gte: start, $lte: end },
           },
           {
-            $set: { updated_at: new Date() },
+            $set: { 
+              updated_at: new Date() ,
+              category_name : categoryName
+
+            },
             $inc: {
               "performance.people_count": peopleCount,
               "performance.total_stop_time": stopEvent
                 ? stopEvent.duration_s
                 : 0,
-              "performance.total_stop_events": stopEventCount
-                ? stopEventCount
-                : 0,
+              "performance.total_stop_events": stopEventCount || 0,
             },
           },
           { upsert: true }
@@ -324,6 +339,7 @@ const syncZonesData = {
           store_id: storeId,
           zone_id: zoneId,
           date: new Date(),
+          category_name : categoryName,
           performance: {
             people_count: peopleCount ? peopleCount : 0,
             total_stop_time: stopEvent ? stopEvent.duration_s : 0,
@@ -338,16 +354,16 @@ const syncZonesData = {
       throw err;
     }
   },
-  async saveZoneSummary({ storeid, zoneStats, date }) {
+  async saveZoneSummary({ storeid, zoneStats, start , end }) {
     try {
-      const { start, end } = getDateRangeVN(date);
       for (const item of Object.values(zoneStats)) {
+        console.log("Processing zone summary for zone ID:", item);
         const checkSummary = await zonesSummary.findOne({
           store_id: storeid,
           zone_id: item.zone_id,
           date: { $gte: start, $lte: end },
         });
-
+       
         if (checkSummary) {
           await zonesSummary.updateOne(
             {
@@ -359,8 +375,9 @@ const syncZonesData = {
               {
                 $set: {
                   updated_at: new Date(),
-                  "performance.total_sales_value": item.totalSalesValue, 
-                  "performance.total_invoices": item.totalInvoices, 
+                   category_name: item.category_name,
+                  "performance.total_sales_value": item.totalSalesValue,
+                  "performance.total_invoices": item.totalInvoices,
                   "performance.top_product_id": {
                     $let: {
                       vars: {
@@ -429,6 +446,7 @@ const syncZonesData = {
             camera_code: item.camera_code,
             store_id: storeid,
             zone_id: item.zone_id,
+            category_name: item.category_name,
             date: new Date(),
             performance: {
               total_sales_value: item.totalSalesValue,
@@ -445,6 +463,7 @@ const syncZonesData = {
             created_at: new Date(),
             updated_at: new Date(),
           });
+
           await newZoneSummary.save();
         }
       }
