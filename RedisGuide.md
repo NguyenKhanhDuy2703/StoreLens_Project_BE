@@ -1,5 +1,5 @@
 -- run redis  by docker ---
-docker run -d --name storelens -p 6379:6379 redis:latest
+docker run -d --name q storelens -p 6379:6379 redis:latest
 -- verify redis is running ---
 docker ps
 -- update correct address IP at file redis.js --

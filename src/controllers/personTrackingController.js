@@ -1,5 +1,4 @@
 
-const {getTracking , stopTracking} = require ("../api/trackingApi")
 const  personTrackingService  = require("../service_AI/personTrackingService");
 const updateTracking = async (req, res) => {
   try {

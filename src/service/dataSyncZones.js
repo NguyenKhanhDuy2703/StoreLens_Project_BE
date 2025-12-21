@@ -137,6 +137,7 @@ const syncZonesData = {
         for (const z of zoneInfoMap.values()) {
           if (z.category_name == null) continue;
           if (item.category_name === z.category_name) {
+            
             if (!zoneStats[z.zone_id]) {
               zoneStats[z.zone_id] = {
                 totalSalesValue: item.total_revenue,
@@ -181,6 +182,15 @@ const syncZonesData = {
     for (const record of data) {
       const { rtsp_url } = record;
       const CameraCode = await getCameraFromRTSP(rtsp_url);
+      const rawWidth = record.heatmap?.width_frame || record.event?.width_frame || record.width_frame;
+      const rawHeight = record.heatmap?.height_frame || record.event?.height_frame || record.height_frame;
+      if (!rawWidth || !rawHeight) {
+        console.warn("Missing frame dimensions for record from RTSP:", rtsp_url);
+        continue;
+      }
+      const frameWidth = rawWidth ;
+      const frameHeight = rawHeight ;
+    
       if (!CameraCode) continue;
 
       if (!zoneCache[CameraCode.store_id]) {
@@ -200,16 +210,25 @@ const syncZonesData = {
           zoneItem.zone_id,
           zoneItem.category_name
         );
-
+        const zonePixelCoordinates = zoneItem.coordinates.map(point => {
+             if (Array.isArray(point)) {
+                 return [
+                     Math.round(point[0] * frameWidth), 
+                     Math.round(point[1] * frameHeight)
+                 ];
+             }
+             return point;
+          });
         // --- 1. XỬ LÝ NGƯỜI VÀO VÙNG (Tracking) ---
         if (record.data && Array.isArray(record.data)) {
           for (const person of record.data) {
             const positions = person.position;
             if (!positions || positions.length === 0) continue;
 
-            const isInZone = isPointInPolygon(positions, zoneItem.coordinates);
+            const isInZone = isPointInPolygon(positions, zonePixelCoordinates);
             
             if (isInZone) {
+              
               const peopleSetEntryTime = peopleInZoneStatus[CameraCode.store_id]
                 [CameraCode.camera_code][zoneItem.zone_id]["entryTimes"];
               
@@ -247,8 +266,9 @@ const syncZonesData = {
             record.event.x_position,
             record.event.y_position,
           ];
-          const isInZone = isPointInPolygon(position, zoneItem.coordinates);
+          const isInZone = isPointInPolygon(position, zonePixelCoordinates);
           if (isInZone) {
+            
             const peopleSetStopEvent = peopleInZoneStatus[CameraCode.store_id]
               [CameraCode.camera_code][zoneItem.zone_id]["stopEvent"];
               
@@ -287,7 +307,7 @@ const syncZonesData = {
     throw err;
   }
 },
-  // hàm cập nhật dữ liệu vào zonesSummary
+
  async updateZoneSummary({
     storeId,
     zoneId,
@@ -321,7 +341,6 @@ const syncZonesData = {
               $set: {
                 updated_at: new Date(),
                 category_name: categoryName,
-                // Cộng dồn các chỉ số (tương đương $inc cũ)
                 "performance.people_count": {
                   $add: [{ $ifNull: ["$performance.people_count", 0] }, peopleCount],
                 },

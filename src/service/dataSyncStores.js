@@ -44,9 +44,9 @@ const synchronizeStoreData = {
     {
         $project: {
             _id: 0,
-            visitorCount: { $size: "$uniquePeople" }, // Số khách vào
-            totalStopEvents: "$totalStopCount",       // Số lần dừng
-            avgDurationS: {                           // Trung bình thời gian dừng
+            visitorCount: { $size: "$uniquePeople" },
+            totalStopEvents: "$totalStopCount",       
+            avgDurationS: {                           
                  $cond: [
                     { $eq: [{ $size: "$uniquePeople" }, 0] },
                     0,
@@ -97,7 +97,7 @@ const synchronizeStoreData = {
         conversion_rate: visitor.visitorCount
           ? ((invoice.totalInvoices / visitor.visitorCount) * 100).toFixed(2)
           : 0,
-        avg_store_dwell_time: Number(visitor.avgDurationS.toFixed(3)) || 0,
+        avg_store_dwell_time: Number(visitor.avgDurationS / visitor.visitorCount).toFixed(4) || 0,
         avg_basket_value: invoice.totalInvoices
           ? invoice.totalRevenue / invoice.totalInvoices
           : 0,
