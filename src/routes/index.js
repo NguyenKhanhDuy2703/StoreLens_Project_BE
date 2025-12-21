@@ -11,7 +11,7 @@ const invoiceRoutes = require('./invoice.routes');
 const { authenticationToken, authenticatioRole  } = require("../middlewares/authentication");
 const usersRouter = require("./user.routes");
 const invoiceRouter = require("./pos.routes");
-
+const report  = require("./report.routes");
 
 const Routes = (app) => {
   app.use("/api/v1/tracking",trackingRouter);
@@ -26,6 +26,7 @@ const Routes = (app) => {
   app.use("/api/v1/invoices", invoiceRoutes);
   app.use("/api/v1/users", usersRouter);
   app.use("/api/v1/pos", invoiceRouter);
+  app.use("/api/v1/report", report);
   app.get(
     "/api/v1/getToken",
     authenticationToken,

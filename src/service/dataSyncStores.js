@@ -10,54 +10,65 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 const TZ = "Asia/Ho_Chi_Minh";
+
 const synchronizeStoreData = {
   async syncBatchDailySummaries({ storeId, date }) {
     try {
-      // Kiểm tra store
+      // 1. Kiểm tra store tồn tại
       const storeExists = await storeModel.exists({ store_id: storeId });
       if (!storeExists) throw new Error(`Store ID ${storeId} does not exist.`);
 
       const { start, end } = getDateRangeVN(date);
 
-      // Lấy dữ liệu visitor
-     const visitorData = await personTrackingModel.aggregate([
-    { 
-        $match: { 
-            store_id: storeId, 
-            date: { $gte: start, $lte: end } 
-        } 
-    },
-    {
-        $project: {
+      // 2. Lấy dữ liệu visitor (PersonTracking)
+      // Mặc định là 0 để tránh lỗi nếu chưa có khách
+      let visitor = { visitorCount: 0, totalStopEvents: 0, avgDurationS: 0 };
+
+      const visitorData = await personTrackingModel.aggregate([
+        {
+          $match: {
+            store_id: storeId,
+            date: { $gte: start, $lte: end },
+          },
+        },
+        {
+          $project: {
             person_id: 1,
-            events: { $ifNull: ["$stop_events", []] }
-        }
-    },
-    {
-        $group: {
+            events: { $ifNull: ["$stop_events", []] },
+          },
+        },
+        {
+          $group: {
             _id: null,
             uniquePeople: { $addToSet: "$person_id" },
             totalDwellTime: { $sum: { $sum: "$events.duration_s" } },
-            totalStopCount: { $sum: { $size: "$events" } }
-        }
-    },
-    {
-        $project: {
+            totalStopCount: { $sum: { $size: "$events" } },
+          },
+        },
+        {
+          $project: {
             _id: 0,
             visitorCount: { $size: "$uniquePeople" },
-            totalStopEvents: "$totalStopCount",       
-            avgDurationS: {                           
-                 $cond: [
-                    { $eq: [{ $size: "$uniquePeople" }, 0] },
-                    0,
-                    { $divide: ["$totalDwellTime", { $size: "$uniquePeople" }] }
-                ]
-            }
-        }
-    }
-]);
-      if (!visitorData.length) throw new Error("No visitor data found.");
-      // Lấy dữ liệu invoice
+            totalStopEvents: "$totalStopCount",
+            avgDurationS: {
+              $cond: [
+                { $eq: [{ $size: "$uniquePeople" }, 0] },
+                0,
+                { $divide: ["$totalDwellTime", { $size: "$uniquePeople" }] },
+              ],
+            },
+          },
+        },
+      ]);
+
+      if (visitorData.length > 0) {
+        visitor = visitorData[0];
+      }
+
+      // 3. Lấy dữ liệu invoice (Doanh thu)
+      // Mặc định là 0 để tránh lỗi nếu chưa có đơn hàng
+      let invoice = { totalRevenue: 0, totalInvoices: 0 };
+
       const invoiceData = await InvoiceModel.aggregate([
         { $match: { store_id: storeId, date: { $gte: start, $lte: end } } },
         {
@@ -69,12 +80,17 @@ const synchronizeStoreData = {
         },
         { $project: { _id: 0, totalRevenue: 1, totalInvoices: 1 } },
       ]);
-      if (!invoiceData.length) throw new Error("No invoice data found.");
-      // check date storesummary hôm nay có chưa
+
+      if (invoiceData.length > 0) {
+        invoice = invoiceData[0];
+      }
+
+      // 4. Khởi tạo StoresSummary nếu chưa có
       const existingSummary = await StoreSummary.findOne({
         store_id: storeId,
         date: { $gte: start, $lte: end },
       });
+
       if (!existingSummary) {
         const newSummary = new StoreSummary({
           store_id: storeId,
@@ -87,25 +103,29 @@ const synchronizeStoreData = {
         await newSummary.save();
       }
 
-      const visitor = visitorData[0];
-      const invoice = invoiceData[0];
-
+      // 5. Tính toán KPIs
       const kpis = {
-        total_visitors: visitor.visitorCount || 0,
-        total_revenue: invoice.totalRevenue || 0,
-        total_invoices: invoice.totalInvoices || 0,
+        total_visitors: visitor.visitorCount,
+        total_revenue: invoice.totalRevenue,
+        total_invoices: invoice.totalInvoices,
         conversion_rate: visitor.visitorCount
-          ? ((invoice.totalInvoices / visitor.visitorCount) * 100).toFixed(2)
+          ? Number(((invoice.totalInvoices / visitor.visitorCount) * 100).toFixed(2))
           : 0,
-        avg_store_dwell_time: Number(visitor.avgDurationS / visitor.visitorCount).toFixed(4) || 0,
+        // Giữ nguyên giá trị đã tính trung bình từ aggregate
+        avg_store_dwell_time: Number(visitor.avgDurationS.toFixed(2)) || 0,
         avg_basket_value: invoice.totalInvoices
-          ? invoice.totalRevenue / invoice.totalInvoices
+          ? Number((invoice.totalRevenue / invoice.totalInvoices).toFixed(2))
           : 0,
       };
-      const topProductsData = await InvoiceModel.aggregate(
-        [
-          { $match: 
-            { store_id: storeId, date: { $gte: start, $lte: end } } },
+
+      // 6. Lấy Top Products
+      const topProductsData = await InvoiceModel.aggregate([
+        {
+          $match: {
+            store_id: storeId,
+            date: { $gte: start, $lte: end },
+          },
+        },
         { $unwind: "$products" },
         {
           $group: {
@@ -115,61 +135,55 @@ const synchronizeStoreData = {
             total_revenue: { $sum: "$products.total_price" },
           },
         },
+        { $sort: { total_revenue: -1 } },
+        { $limit: 5 },
         {
-          $sort: { total_revenue: -1 },
-        },
-        {
-          $limit: 5,
-        },
-        {$project :{
+          $project: {
             _id: 0,
             product_id: "$_id",
             product_name: 1,
             total_quantity: 1,
             total_revenue: 1,
-        }}
-      ]
-      );
-      
+          },
+        },
+      ]);
 
+      // 7. Đồng bộ dữ liệu
       await this.syncKpis({ storeId, start, end, kpis });
+      
       await this.syncChartData({
         storeId,
         start,
         end,
         hour: dayjs(date).tz(TZ).hour(),
-        totalRevenue: invoice.totalRevenue || 0,
-        peopleCount: visitor.totalPeople || 0,
+        totalRevenue: invoice.totalRevenue,
+        // FIX: Sửa visitor.totalPeople (undefined) thành visitor.visitorCount
+        peopleCount: visitor.visitorCount, 
       });
-      await this.syncTopProducts({topProductsData , storeId, start, end});
+
+      await this.syncTopProducts({ topProductsData, storeId, start, end });
+
     } catch (err) {
       console.error("Error synchronizing daily summaries:", err);
     }
   },
+
   async syncKpis({ storeId, start, end, kpis }) {
     try {
-      // Update hoặc tạo mới document
       const result = await StoreSummary.updateOne(
         { store_id: storeId, date: { $gte: start, $lte: end } },
         { $set: { kpis, updated_at: new Date() } },
         { upsert: true }
       );
-
       if (!result.acknowledged) throw new Error("Update KPIs failed");
     } catch (err) {
       throw err;
     }
   },
 
-  async syncChartData({
-    storeId,
-    start,
-    end,
-    hour,
-    peopleCount,
-    totalRevenue,
-  }) {
+  async syncChartData({ storeId, start, end, hour, peopleCount, totalRevenue }) {
     try {
+      // Cập nhật nếu giờ đã tồn tại
       const result = await StoreSummary.updateOne(
         {
           store_id: storeId,
@@ -183,9 +197,10 @@ const synchronizeStoreData = {
           },
         }
       );
+
+      // Nếu chưa có giờ này trong mảng, push mới vào
       if (result.matchedCount === 0) {
-        // Nếu không có giờ nào khớp, thêm mới giờ đó vào mảng chart_data
-        const pushResult = await StoreSummary.updateOne(
+        await StoreSummary.updateOne(
           { store_id: storeId, date: { $gte: start, $lte: end } },
           {
             $push: {
@@ -195,20 +210,16 @@ const synchronizeStoreData = {
                 total_revenue: totalRevenue,
               },
             },
-          },
-          {
-            _id : false,
           }
         );
       }
-      if (!result.acknowledged) throw new Error("Update chart_data failed");
-      return result;
     } catch (err) {
       console.error(err.message);
       throw err;
     }
   },
-  async syncTopProducts({topProductsData , storeId, start, end}) {
+
+  async syncTopProducts({ topProductsData, storeId, start, end }) {
     try {
       const result = await StoreSummary.updateOne(
         {
@@ -225,7 +236,7 @@ const synchronizeStoreData = {
     } catch (error) {
       throw error;
     }
-  }
+  },
 };
 
 module.exports = synchronizeStoreData;
