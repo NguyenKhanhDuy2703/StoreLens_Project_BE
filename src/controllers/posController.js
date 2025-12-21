@@ -79,8 +79,8 @@ const invoicesData = [
       }
     ],
     date: new Date(),
-    created_at: new Date("2025-01-27T10:15:00"),
-    updated_at: new Date("2025-01-27T10:15:00")
+    created_at: new Date(),
+    updated_at: new Date()
   },
 
   // HÓA ĐƠN 3: Mua nguyên liệu nấu ăn
@@ -760,11 +760,70 @@ const invoicesData = [
     date: new Date(),
     created_at: new Date("2025-01-30T18:50:00"),
     updated_at: new Date("2025-01-30T18:50:00")
-  }
+  },
+  {
+  invoice_code: "INV-300125-006",
+  store_id: "STORE001",
+  total_amount: 54000,
+  payment_method: "cash",
+  status: "completed",
+  products: [
+    {
+      product_id: "PRD-048",
+      name_product: "Combo Mì Hảo Hảo Tôm Chua Cay (5 Gói)",
+      quantity: 4,
+      unit_price: 3000,
+      total_price: 12000
+    },
+    {
+      product_id: "PRD-049",
+      name_product: "Combo Nước Ngọt Coca Cola 330ml (6 Lon)",
+      quantity: 3,
+      unit_price: 7000,
+      total_price: 21000
+    },
+    {
+      product_id: "PRD-050",
+      name_product: "Combo Snack Oishi (3 Gói Mix)",
+      quantity: 3,
+      unit_price: 7000,
+      total_price: 21000
+    }
+  ],
+  date: new Date(),
+  created_at: new Date("2025-01-30T19:20:00"),
+  updated_at: new Date("2025-01-30T19:20:00")
+},
+// HÓA ĐƠN 22: Phí và sản phẩm tại quầy thanh toán
+{
+  invoice_code: "INV-300125-007",
+  store_id: "STORE001",
+  total_amount: 7000,
+  payment_method: "cash",
+  status: "completed",
+  products: [
+    {
+      product_id: "PRD-038",
+      name_product: "Kẹo Cao Su Lotte Xylitol",
+      quantity: 2,
+      unit_price: 2000,
+      total_price: 4000
+    },
+    {
+      product_id: "PRD-040",
+      name_product: "Kẹo Mút Chupa Chups",
+      quantity: 1,
+      unit_price: 3000,
+      total_price: 3000
+    }
+  ],
+  date: new Date(),
+  created_at: new Date("2025-01-30T19:35:00"),
+  updated_at: new Date("2025-01-30T19:35:00")
+}
 ];
 
 
-const { ca } = require("date-fns/locale");
 const InvoiceModel = require("../schemas/invoice.model");
 const postInvoiceController = async (req, res) => {
     try {
@@ -1543,6 +1602,39 @@ const productsData = [
     status: true,
     created_at: new Date("2024-01-15"),
     updated_at: new Date()
+  },
+  {
+    product_id: "PRD-KM-005",
+    product_name: "Mì gói Hảo Hảo khuyến mãi",
+    category_name: "Hàng khuyến mãi",
+    original_price: 4500,
+    price: 3000,
+    discount_percent: 33,
+    is_promotion: true,
+    status: "active",
+    created_at: new Date()
+  },
+  {
+    product_id: "PRD-KM-006",
+    product_name: "Nước ngọt Coca 390ml khuyến mãi",
+    category_name: "Hàng khuyến mãi",
+    original_price: 12000,
+    price: 9000,
+    discount_percent: 25,
+    is_promotion: true,
+    status: "active",
+    created_at: new Date()
+  },
+  {
+    product_id: "PRD-KM-007",
+    product_name: "Bánh snack Oishi khuyến mãi",
+    category_name: "Hàng khuyến mãi",
+    original_price: 10000,
+    price: 7000,
+    discount_percent: 30,
+    is_promotion: true,
+    status: "active",
+    created_at: new Date()
   }
 ];      
 const productModel = require("../schemas/products.model");
@@ -1554,6 +1646,7 @@ const addProductsController = async (req, res) => {
     }
     res.status(200).json({ message: 'Products added successfully' });
   }catch (error) {
+    console
     res.status(500).json({ message: 'Internal server error' });
   }
 }

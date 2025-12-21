@@ -8,6 +8,10 @@ const getDataHeatmap = async (req, res) => {
     const { store_id, camera_code } = req.query;
     const range = req.query.range || new Date();
     const {start , end } = getDateRangeVN(range);
+    if (!store_id || !camera_code) {
+      return res.status(400).json({ message: 'store_id and camera_code are required' });
+    }
+    
     const result = await heatmapModel.find({ store_id, camera_code , date: {$gte :  start , $lte : end } }).select('-_id -__v');
     const inforZone = await ZoneModel.findOne({ store_id, camera_code }).select({_id : 0  , background_image : 1 , zones : 1});
     
